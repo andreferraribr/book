@@ -1,0 +1,26 @@
+project:
+  type: book
+
+book:
+  title: "livro"
+  author: "Jane Doe"
+  date: "09/09/2022"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - summary.qmd
+    - siafi.qmd
+    - tesouro_gerencial.qmd
+    - linguagem_r.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
