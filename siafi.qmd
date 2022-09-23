@@ -7,7 +7,7 @@ knitr::opts_chunk$set (echo= TRUE, warning = FALSE, message = FALSE)
 ## CONRAZAO
 
 ```{r}
-library(vroom)
+# library(vroom)
 library(tidyverse)
 library(janitor)
 library(DT)
@@ -16,7 +16,7 @@ options(encoding = "latin1")
 
 options(max.print=999999)
 
-balan_siafi <- (readLines("BALAN.txt" ,encoding = "UFT-8"))
+balan_siafi <- (readLines("https://raw.githubusercontent.com/andreferraribr/book/main/BALAN.txt" ,encoding = "UFT-8"))
 
 balan_siafi <- str_replace_all(balan_siafi,"\"","'")
 
