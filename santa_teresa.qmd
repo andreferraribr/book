@@ -72,6 +72,58 @@ pagamentos <- relatorios(url_api)
 ```
 
 ```{r}
+endpoint <- "https://www2.santateresa.es.gov.br/transparencia/api/receitas"
+
+call <- paste0(endpoint, "?page=1&page_size=100&data_inicio=01/01/2007&data_fim=31/12/2022")
+
+
+
+receitas_api <- GET(url = call)
+
+# Getting status of HTTP Call
+status_code(receitas_api)
+str(content(receitas_api))
+
+
+get_receitas_text <- content(receitas_api,
+                          "text", encoding = "UTF-8")
+
+
+# Parsing data in JSON
+receitas_api_json <- fromJSON(get_receitas_text,
+                           flatten = TRUE)
+
+# receitas <- as.data.frame(receitas_api_json$registros)
+url_api <- c()
+
+for (x in (1:as.integer(receitas_api_json$pagina_total))){
+
+    
+  paginas_api <-   paste0(endpoint, "?page=",x,"&page_size=100&data_inicio=01/01/2007&data_fim=31/12/2022")
+  url_api <-  c(url_api,paginas_api)
+}
+
+
+json2df = function(a){ 
+  # "a" é a URL
+  f_api <-   GET(a)
+  f_txt <- content(f_api, as="text", encoding="UTF-8")
+  f_json <- fromJSON(f_txt, flatten = TRUE)
+ 
+  f_df <-as.data.frame(f_json$registros) 
+}
+
+bind_json2df = function(a){ map(a,json2df)}
+
+relatorios = function(a){map_dfr(bind_json2df(a), bind_rows)}
+
+
+receitas <- relatorios(url_api)
+
+write.csv(receitas,"receitas.csv")
+```
+
+```{r}
 datatable(pagamentos)
 ```
 
@@ -367,4 +419,8 @@ write.csv(orcamento_receita,"orcamento_receita.csv")
 servidores <- servidores %>% mutate(total_rendimentos = as.integer(total_rendimentos))
 
 datatable(servidores %>% filter(competencia_mes=="2") %>% group_by(setor) %>% summarise( custo = sum(as.integer( total_rendimentos))))
+```
+
+```{r}
+ datatable(servidores %>% filter(competencia_mes==8, endsWith(cargo,"DT"))%>% count(cargo))
 ```
