@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>livro - 5&nbsp; Relatórios Fiscais</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./tesouro_gerencial.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Relatórios Fiscais</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">livro</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Preface</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Summary</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./siafi.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Siafi</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tesouro_gerencial.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tesouro Gerencial</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./linguagem_r.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Relatórios Fiscais</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introdução" id="toc-introdução" class="nav-link active" data-scroll-target="#introdução"> <span class="header-section-number">5.1</span> Introdução</a></li>
+  <li><a href="#rreo" id="toc-rreo" class="nav-link" data-scroll-target="#rreo"> <span class="header-section-number">5.2</span> RREO</a>
+  <ul class="collapse">
+  <li><a href="#pacotes-e-funções" id="toc-pacotes-e-funções" class="nav-link" data-scroll-target="#pacotes-e-funções"> <span class="header-section-number">5.2.1</span> Pacotes e Funções</a></li>
+  <li><a href="#despesa-com-educação" id="toc-despesa-com-educação" class="nav-link" data-scroll-target="#despesa-com-educação"> <span class="header-section-number">5.2.2</span> Despesa com Educação</a></li>
+  <li><a href="#despesa-com-saúde" id="toc-despesa-com-saúde" class="nav-link" data-scroll-target="#despesa-com-saúde"> <span class="header-section-number">5.2.3</span> Despesa com Saúde</a></li>
+  <li><a href="#receita-corrente-líquida" id="toc-receita-corrente-líquida" class="nav-link" data-scroll-target="#receita-corrente-líquida"> <span class="header-section-number">5.2.4</span> Receita Corrente Líquida</a></li>
+  <li><a href="#resultado-previdenciário" id="toc-resultado-previdenciário" class="nav-link" data-scroll-target="#resultado-previdenciário"> <span class="header-section-number">5.2.5</span> Resultado Previdenciário</a></li>
+  <li><a href="#disponibilidade-por-fonte-de-recurso" id="toc-disponibilidade-por-fonte-de-recurso" class="nav-link" data-scroll-target="#disponibilidade-por-fonte-de-recurso"> <span class="header-section-number">5.2.6</span> Disponibilidade por Fonte de Recurso</a></li>
+  <li><a href="#restos-a-pagar" id="toc-restos-a-pagar" class="nav-link" data-scroll-target="#restos-a-pagar"> <span class="header-section-number">5.2.7</span> Restos a Pagar</a></li>
+  </ul></li>
+  <li><a href="#rgf" id="toc-rgf" class="nav-link" data-scroll-target="#rgf"> <span class="header-section-number">5.3</span> RGF</a>
+  <ul class="collapse">
+  <li><a href="#despesa-com-pessoal" id="toc-despesa-com-pessoal" class="nav-link" data-scroll-target="#despesa-com-pessoal"> <span class="header-section-number">5.3.1</span> Despesa com pessoal</a></li>
+  <li><a href="#dívida" id="toc-dívida" class="nav-link" data-scroll-target="#dívida"> <span class="header-section-number">5.3.2</span> Dívida</a></li>
+  <li><a href="#operações-de-crédito" id="toc-operações-de-crédito" class="nav-link" data-scroll-target="#operações-de-crédito"> <span class="header-section-number">5.3.3</span> Operações de Crédito</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"> <span class="header-section-number">5.3.4</span> </a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Relatórios Fiscais</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<section id="introdução" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="introdução"><span class="header-section-number">5.1</span> Introdução</h2>
+</section>
+<section id="rreo" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="rreo"><span class="header-section-number">5.2</span> RREO</h2>
+<section id="pacotes-e-funções" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="pacotes-e-funções"><span class="header-section-number">5.2.1</span> Pacotes e Funções</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>( <span class="at">echo=</span><span class="cn">FALSE</span>, <span class="at">warning=</span><span class="cn">FALSE</span>, <span class="at">message=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+</section>
+<section id="despesa-com-educação" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="despesa-com-educação"><span class="header-section-number">5.2.2</span> Despesa com Educação</h3>
+<p>Despesa com Educação</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="htmlwidget-5d2469a6be2fc8f4f7c1" style="width:100%;height:464px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5d2469a6be2fc8f4f7c1">{"x":{"data":[{"x":[1.00958234756254,1.98615198824555,2.9031402183231,4.0029910128098,4.90487840841524,6.04751615165733,6.92914198073558,8.00481490632519,8.97889553988352,9.93534992123023,11.0964504083619,1.09803853034973,2.0417270809412,3.03690950758755,4.01144899148494,4.99275520471856,5.99117679838091,6.99942149776034,7.98474430870265,8.96956022260711,10.0763432847802,10.9769951172173,1.09991484191269,1.92890263185836,3.05781031576917,3.96632174421102,5.00209087124094,6.07494180379435,7.03411794337444,8.01261426997371,8.98863042308949,9.96300643770956,11.0400554513559,1.06732167005539,1.9618000627961,2.96170311658643,4.022724583745,5.03526926478371,6.07611758862622,6.90092529063113,7.95338436495513,9.02392231589183,10.0070479328278,11.0133911824785,0.936907493323088,2.00646877866238,2.98897051964886,4.00749695654959,4.94746774751693,5.95734795029275,6.92416231296957,7.92339726705104,9.05513972425833,9.9583404303994,11.0094989438076,1.06107541820966,2.03046132973395,2.95118829193525,3.94165259455331,4.90440879077651,6.08303533252329,6.95884044570848,7.91613262356259,8.97833379097283,9.98584094941616,10.9903455643915,0.957544575817883,1.92453542281874,2.94584062313661,3.91516677625477,4.95505045298487,6.09008305226453,6.96696558990516,7.91400111233816,8.90652735577896,9.90180052639917,1.04643094846979,2.00320390276611,2.95607004323974,3.92094341199845,4.96344411177561,6.01519733765163,7.03238787637092,8.00992862419225,9.02173495045863,0.98964759837836,2.06997250439599,3.06438906658441,3.91037811115384,5.05265126461163,6.00347722852603,6.92643295233138,8.08259312356822,8.92712013809942,0.966134707257152,1.97260439684615,3.03235708829015,3.90917011955753,4.9729667426087,5.95749532957561,6.99022295218892,8.08796515804715,8.99419611706398,10.0431427563075,0.922660994809121,1.97480194251984,2.98302653864957,3.91327416892163,5.0819408734329,5.99425175585784,7.09773173620924,7.98401512238197,8.91742862807587,10.0752608370502,1.0122164266184,2.05317421727814,3.04988103639334,3.95312087438069,4.99347852752544,6.08449602019973,6.98790178899653,8.09750209129415,8.96908320100047,9.97740070484579,0.975353514496237,2.09058630843647,3.04876694502309,4.09770763921551,4.95906019345857,5.97330177281983,7.0652102411259,7.94274469441734,8.9776206030976,9.99966852879152,1.08194665326737,1.97162279654294,2.954245161172,3.95306575316936,5.01669983756728,6.00121679604054,7.05374193792231,7.92876475891098,8.99101679474115,9.9180545269046],"y":[6.05650101550855,11.0780330499168,17.0460023792461,23.0026524160523,30.033899623761,39.9898323922418,48.9344221978448,54.9266436973587,61.9190463849343,69.0100802725181,79.9479694097768,6.08398103211075,13.0878943005111,18.976200301107,25.9809314513113,35.0773352393415,43.0485276480205,48.9373164523859,58.076246906817,66.0097493158188,73.939747337997,85.9363800975028,5.00347713660449,11.0546160258818,16.9915584819857,22.9165339334868,30.0873908573762,37.9222392155789,47.0159246961121,53.9853900966234,61.9031881036237,71.0225830543786,82.0499037819449,9.92827850338072,16.0188753071241,22.9256760235876,30.9885229921434,31.0091302591842,38.0767055037431,45.0976482311264,51.9709561754949,59.9418753717095,67.0554163170978,78.0225971231237,6.93225870281458,14.0061413339805,20.9220021349378,29.9403355545364,39.0608563793823,48.0769064377993,57.0129639937542,67.9149152196944,66.0585947306827,74.0233470473438,98.9395310255233,5.08031843397766,10.0987782336306,16.9189756848849,25.9807124684565,34.0872272100765,42.9487556455191,51.9904760165606,63.057749945391,69.0181484846864,79.0854319051374,90.9270890526473,7.08403756609187,15.0905037856661,22.0056982168928,31.93999709934,39.959815530898,50.0872977500781,59.9271434512455,71.0905249138363,78.9648288158234,91.9631716103759,11.0794991435017,18.9266033802647,28.9096313999966,39.9397536343429,50.9443069620989,63.0863892526366,73.9382127911784,84.0294766478241,94.9412752376869,9.01749321753159,19.0776100053918,28.905739955185,39.9116148692556,51.0867076497525,61.9990909723565,71.9920633778907,81.9327081858646,92.0805547139607,10.0157558727078,17.9523999875877,26.9188748812303,36.0079238793347,46.0185069201048,56.9092404298484,65.9162159889936,75.963508317247,86.0229647599626,94.9539317655843,9.92267473391257,17.9231752984691,28.0627219699323,37.0360393192153,46.9918595263269,57.9687453349587,67.0174394861795,77.0102294822223,87.0369204210583,96.0945152429864,9.06474922262132,17.0819822704885,25.9781106361188,35.0112474649213,42.9125942343846,52.9587494396139,62.0177515003365,69.9769014756195,79.0422100333963,86.9155029877555,7.96200642557815,15.0154682830907,23.9333224917762,31.9726251978427,39.0244318352081,47.9534580085427,54.0125749704894,59.9949502592906,82.0707320940681,90.9065353588667,8.94621982667595,16.9218215811532,25.9227456043474,34.9973193494137,43.0414476040285,56.9143877200782,65.9258896014187,75.9679705517832,87.0917996722739,96.946604811959],"text":["percentual:   6<br />cores: blue<br />mes: jan<br />ANO:  2008","percentual:  11<br />cores: blue<br />mes: fev<br />ANO:  2008","percentual:  17<br />cores: blue<br />mes: mar<br />ANO:  2008","percentual:  23<br />cores: blue<br />mes: abr<br />ANO:  2008","percentual:  30<br />cores: blue<br />mes: mai<br />ANO:  2008","percentual:  40<br />cores: blue<br />mes: jun<br />ANO:  2008","percentual:  49<br />cores: blue<br />mes: jul<br />ANO:  2008","percentual:  55<br />cores: blue<br />mes: ago<br />ANO:  2008","percentual:  62<br />cores: blue<br />mes: set<br />ANO:  2008","percentual:  69<br />cores: blue<br />mes: out<br />ANO:  2008","percentual:  80<br />cores: blue<br />mes: nov<br />ANO:  2008","percentual:   6<br />cores: blue<br />mes: jan<br />ANO:  2009","percentual:  13<br />cores: blue<br />mes: fev<br />ANO:  2009","percentual:  19<br />cores: blue<br />mes: mar<br />ANO:  2009","percentual:  26<br />cores: blue<br />mes: abr<br />ANO:  2009","percentual:  35<br />cores: blue<br />mes: mai<br />ANO:  2009","percentual:  43<br />cores: blue<br />mes: jun<br />ANO:  2009","percentual:  49<br />cores: blue<br />mes: jul<br />ANO:  2009","percentual:  58<br />cores: blue<br />mes: ago<br />ANO:  2009","percentual:  66<br />cores: blue<br />mes: set<br />ANO:  2009","percentual:  74<br />cores: blue<br />mes: out<br />ANO:  2009","percentual:  86<br />cores: blue<br />mes: nov<br />ANO:  2009","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2010","percentual:  11<br />cores: blue<br />mes: fev<br />ANO:  2010","percentual:  17<br />cores: blue<br />mes: mar<br />ANO:  2010","percentual:  23<br />cores: blue<br />mes: abr<br />ANO:  2010","percentual:  30<br />cores: blue<br />mes: mai<br />ANO:  2010","percentual:  38<br />cores: blue<br />mes: jun<br />ANO:  2010","percentual:  47<br />cores: blue<br />mes: jul<br />ANO:  2010","percentual:  54<br />cores: blue<br />mes: ago<br />ANO:  2010","percentual:  62<br />cores: blue<br />mes: set<br />ANO:  2010","percentual:  71<br />cores: blue<br />mes: out<br />ANO:  2010","percentual:  82<br />cores: blue<br />mes: nov<br />ANO:  2010","percentual:  10<br />cores: blue<br />mes: jan<br />ANO:  2011","percentual:  16<br />cores: blue<br />mes: fev<br />ANO:  2011","percentual:  23<br />cores: blue<br />mes: mar<br />ANO:  2011","percentual:  31<br />cores: blue<br />mes: abr<br />ANO:  2011","percentual:  31<br />cores: blue<br />mes: mai<br />ANO:  2011","percentual:  38<br />cores: blue<br />mes: jun<br />ANO:  2011","percentual:  45<br />cores: blue<br />mes: jul<br />ANO:  2011","percentual:  52<br />cores: blue<br />mes: ago<br />ANO:  2011","percentual:  60<br />cores: blue<br />mes: set<br />ANO:  2011","percentual:  67<br />cores: blue<br />mes: out<br />ANO:  2011","percentual:  78<br />cores: blue<br />mes: nov<br />ANO:  2011","percentual:   7<br />cores: blue<br />mes: jan<br />ANO:  2012","percentual:  14<br />cores: blue<br />mes: fev<br />ANO:  2012","percentual:  21<br />cores: blue<br />mes: mar<br />ANO:  2012","percentual:  30<br />cores: blue<br />mes: abr<br />ANO:  2012","percentual:  39<br />cores: blue<br />mes: mai<br />ANO:  2012","percentual:  48<br />cores: blue<br />mes: jun<br />ANO:  2012","percentual:  57<br />cores: blue<br />mes: jul<br />ANO:  2012","percentual:  68<br />cores: blue<br />mes: ago<br />ANO:  2012","percentual:  66<br />cores: blue<br />mes: set<br />ANO:  2012","percentual:  74<br />cores: blue<br />mes: out<br />ANO:  2012","percentual:  99<br />cores: blue<br />mes: nov<br />ANO:  2012","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2013","percentual:  10<br />cores: blue<br />mes: fev<br />ANO:  2013","percentual:  17<br />cores: blue<br />mes: mar<br />ANO:  2013","percentual:  26<br />cores: blue<br />mes: abr<br />ANO:  2013","percentual:  34<br />cores: blue<br />mes: mai<br />ANO:  2013","percentual:  43<br />cores: blue<br />mes: jun<br />ANO:  2013","percentual:  52<br />cores: blue<br />mes: jul<br />ANO:  2013","percentual:  63<br />cores: blue<br />mes: ago<br />ANO:  2013","percentual:  69<br />cores: blue<br />mes: set<br />ANO:  2013","percentual:  79<br />cores: blue<br />mes: out<br />ANO:  2013","percentual:  91<br />cores: blue<br />mes: nov<br />ANO:  2013","percentual:   7<br />cores: blue<br />mes: jan<br />ANO:  2014","percentual:  15<br />cores: blue<br />mes: fev<br />ANO:  2014","percentual:  22<br />cores: blue<br />mes: mar<br />ANO:  2014","percentual:  32<br />cores: blue<br />mes: abr<br />ANO:  2014","percentual:  40<br />cores: blue<br />mes: mai<br />ANO:  2014","percentual:  50<br />cores: blue<br />mes: jun<br />ANO:  2014","percentual:  60<br />cores: blue<br />mes: jul<br />ANO:  2014","percentual:  71<br />cores: blue<br />mes: ago<br />ANO:  2014","percentual:  79<br />cores: blue<br />mes: set<br />ANO:  2014","percentual:  92<br />cores: blue<br />mes: out<br />ANO:  2014","percentual:  11<br />cores: blue<br />mes: jan<br />ANO:  2015","percentual:  19<br />cores: blue<br />mes: fev<br />ANO:  2015","percentual:  29<br />cores: blue<br />mes: mar<br />ANO:  2015","percentual:  40<br />cores: blue<br />mes: abr<br />ANO:  2015","percentual:  51<br />cores: blue<br />mes: mai<br />ANO:  2015","percentual:  63<br />cores: blue<br />mes: jun<br />ANO:  2015","percentual:  74<br />cores: blue<br />mes: jul<br />ANO:  2015","percentual:  84<br />cores: blue<br />mes: ago<br />ANO:  2015","percentual:  95<br />cores: blue<br />mes: set<br />ANO:  2015","percentual:   9<br />cores: blue<br />mes: jan<br />ANO:  2016","percentual:  19<br />cores: blue<br />mes: fev<br />ANO:  2016","percentual:  29<br />cores: blue<br />mes: mar<br />ANO:  2016","percentual:  40<br />cores: blue<br />mes: abr<br />ANO:  2016","percentual:  51<br />cores: blue<br />mes: mai<br />ANO:  2016","percentual:  62<br />cores: blue<br />mes: jun<br />ANO:  2016","percentual:  72<br />cores: blue<br />mes: jul<br />ANO:  2016","percentual:  82<br />cores: blue<br />mes: ago<br />ANO:  2016","percentual:  92<br />cores: blue<br />mes: set<br />ANO:  2016","percentual:  10<br />cores: blue<br />mes: jan<br />ANO:  2017","percentual:  18<br />cores: blue<br />mes: fev<br />ANO:  2017","percentual:  27<br />cores: blue<br />mes: mar<br />ANO:  2017","percentual:  36<br />cores: blue<br />mes: abr<br />ANO:  2017","percentual:  46<br />cores: blue<br />mes: mai<br />ANO:  2017","percentual:  57<br />cores: blue<br />mes: jun<br />ANO:  2017","percentual:  66<br />cores: blue<br />mes: jul<br />ANO:  2017","percentual:  76<br />cores: blue<br />mes: ago<br />ANO:  2017","percentual:  86<br />cores: blue<br />mes: set<br />ANO:  2017","percentual:  95<br />cores: blue<br />mes: out<br />ANO:  2017","percentual:  10<br />cores: blue<br />mes: jan<br />ANO:  2018","percentual:  18<br />cores: blue<br />mes: fev<br />ANO:  2018","percentual:  28<br />cores: blue<br />mes: mar<br />ANO:  2018","percentual:  37<br />cores: blue<br />mes: abr<br />ANO:  2018","percentual:  47<br />cores: blue<br />mes: mai<br />ANO:  2018","percentual:  58<br />cores: blue<br />mes: jun<br />ANO:  2018","percentual:  67<br />cores: blue<br />mes: jul<br />ANO:  2018","percentual:  77<br />cores: blue<br />mes: ago<br />ANO:  2018","percentual:  87<br />cores: blue<br />mes: set<br />ANO:  2018","percentual:  96<br />cores: blue<br />mes: out<br />ANO:  2018","percentual:   9<br />cores: blue<br />mes: jan<br />ANO:  2019","percentual:  17<br />cores: blue<br />mes: fev<br />ANO:  2019","percentual:  26<br />cores: blue<br />mes: mar<br />ANO:  2019","percentual:  35<br />cores: blue<br />mes: abr<br />ANO:  2019","percentual:  43<br />cores: blue<br />mes: mai<br />ANO:  2019","percentual:  53<br />cores: blue<br />mes: jun<br />ANO:  2019","percentual:  62<br />cores: blue<br />mes: jul<br />ANO:  2019","percentual:  70<br />cores: blue<br />mes: ago<br />ANO:  2019","percentual:  79<br />cores: blue<br />mes: set<br />ANO:  2019","percentual:  87<br />cores: blue<br />mes: out<br />ANO:  2019","percentual:   8<br />cores: blue<br />mes: jan<br />ANO:  2020","percentual:  15<br />cores: blue<br />mes: fev<br />ANO:  2020","percentual:  24<br />cores: blue<br />mes: mar<br />ANO:  2020","percentual:  32<br />cores: blue<br />mes: abr<br />ANO:  2020","percentual:  39<br />cores: blue<br />mes: mai<br />ANO:  2020","percentual:  48<br />cores: blue<br />mes: jun<br />ANO:  2020","percentual:  54<br />cores: blue<br />mes: jul<br />ANO:  2020","percentual:  60<br />cores: blue<br />mes: ago<br />ANO:  2020","percentual:  82<br />cores: blue<br />mes: set<br />ANO:  2020","percentual:  91<br />cores: blue<br />mes: out<br />ANO:  2020","percentual:   9<br />cores: blue<br />mes: jan<br />ANO:  2021","percentual:  17<br />cores: blue<br />mes: fev<br />ANO:  2021","percentual:  26<br />cores: blue<br />mes: mar<br />ANO:  2021","percentual:  35<br />cores: blue<br />mes: abr<br />ANO:  2021","percentual:  43<br />cores: blue<br />mes: mai<br />ANO:  2021","percentual:  57<br />cores: blue<br />mes: jun<br />ANO:  2021","percentual:  66<br />cores: blue<br />mes: jul<br />ANO:  2021","percentual:  76<br />cores: blue<br />mes: ago<br />ANO:  2021","percentual:  87<br />cores: blue<br />mes: set<br />ANO:  2021","percentual:  97<br />cores: blue<br />mes: out<br />ANO:  2021"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,0,0,1)","opacity":0.2,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)"}},"hoveron":"points","name":"blue","legendgroup":"blue","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[12.0945276965853,11.9984329389408,11.9920154931955,12.0126139505301,12.0882336063776,11.9035205862951,11.0635943037923,12.0299849705771,9.97665532496758,11.0334952052683,12.0858713698573,10.0716877131723,11.0919800823554,12.0567383696791,10.9877063284162,11.9987199837808,11.0341015991755,12.054778684536,11.0098871149123,12.0984761667438,10.9273458176758,11.987065029284,11.0082700871862,11.9130078253336],"y":[105.053764417954,115.920204150537,108.029021371901,108.015621122532,141.938116261456,125.017456377437,105.091722537717,129.05234304592,105.022526922496,111.046673339326,128.013064653846,103.067869198136,117.935876816418,142.994221289875,108.95336369304,128.971045771334,110.902486066893,127.971281592036,100.990860306984,120.000199038023,103.080674347421,127.00853258865,111.976382184867,134.053930866718],"text":["percentual: 105<br />cores: red<br />mes: dez<br />ANO:  2008","percentual: 116<br />cores: red<br />mes: dez<br />ANO:  2009","percentual: 108<br />cores: red<br />mes: dez<br />ANO:  2010","percentual: 108<br />cores: red<br />mes: dez<br />ANO:  2011","percentual: 142<br />cores: red<br />mes: dez<br />ANO:  2012","percentual: 125<br />cores: red<br />mes: dez<br />ANO:  2013","percentual: 105<br />cores: red<br />mes: nov<br />ANO:  2014","percentual: 129<br />cores: red<br />mes: dez<br />ANO:  2014","percentual: 105<br />cores: red<br />mes: out<br />ANO:  2015","percentual: 111<br />cores: red<br />mes: nov<br />ANO:  2015","percentual: 128<br />cores: red<br />mes: dez<br />ANO:  2015","percentual: 103<br />cores: red<br />mes: out<br />ANO:  2016","percentual: 118<br />cores: red<br />mes: nov<br />ANO:  2016","percentual: 143<br />cores: red<br />mes: dez<br />ANO:  2016","percentual: 109<br />cores: red<br />mes: nov<br />ANO:  2017","percentual: 129<br />cores: red<br />mes: dez<br />ANO:  2017","percentual: 111<br />cores: red<br />mes: nov<br />ANO:  2018","percentual: 128<br />cores: red<br />mes: dez<br />ANO:  2018","percentual: 101<br />cores: red<br />mes: nov<br />ANO:  2019","percentual: 120<br />cores: red<br />mes: dez<br />ANO:  2019","percentual: 103<br />cores: red<br />mes: nov<br />ANO:  2020","percentual: 127<br />cores: red<br />mes: dez<br />ANO:  2020","percentual: 112<br />cores: red<br />mes: nov<br />ANO:  2021","percentual: 134<br />cores: red<br />mes: dez<br />ANO:  2021"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,255,1)","opacity":0.2,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,0,255,1)"}},"hoveron":"points","name":"red","legendgroup":"red","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8],"y":[8,16,30,39,49,60,69,79],"text":["percentual:  8<br />cores: blue<br />mes: jan<br />ANO:  2022","percentual: 16<br />cores: blue<br />mes: fev<br />ANO:  2022","percentual: 30<br />cores: blue<br />mes: mar<br />ANO:  2022","percentual: 39<br />cores: blue<br />mes: abr<br />ANO:  2022","percentual: 49<br />cores: blue<br />mes: mai<br />ANO:  2022","percentual: 60<br />cores: blue<br />mes: jun<br />ANO:  2022","percentual: 69<br />cores: blue<br />mes: jul<br />ANO:  2022","percentual: 79<br />cores: blue<br />mes: ago<br />ANO:  2022"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)"}},"hoveron":"points","name":"blue","legendgroup":"blue","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.4,12.6],"y":[100,100],"text":"yintercept: 100","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"visible":false,"showlegend":false,"xaxis":null,"yaxis":null,"hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8],"y":[8,16,30,39,49,60,69,79],"text":["month(as.Date(date)): 1<br />percentual:  8","month(as.Date(date)): 2<br />percentual: 16","month(as.Date(date)): 3<br />percentual: 30","month(as.Date(date)): 4<br />percentual: 39","month(as.Date(date)): 5<br />percentual: 49","month(as.Date(date)): 6<br />percentual: 60","month(as.Date(date)): 7<br />percentual: 69","month(as.Date(date)): 8<br />percentual: 79"],"type":"scatter","mode":"lines","line":{"width":0.755905511811024,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[8],"y":[87],"text":"79%","hovertext":"percentual + 8: 87<br />cores: black<br />mes: ago<br />paste0(round(percentual, 1), \"%\"): 79%","textfont":{"size":15.1181102362205,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":42.1685346616853,"r":7.30593607305936,"b":40.4483188044832,"l":44.1677044416771},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"<b> Despesa de 79% até ago/2022 <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":15.9402241594022},"x":0.5,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,12.6],"tickmode":"array","ticktext":["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12],"categoryorder":"array","categoryarray":["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":13.2835201328352},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"mês","font":{"color":"rgba(0,0,0,1)","family":"","size":13.2835201328352}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.89606007105904,149.893758497538],"tickmode":"array","ticktext":["0","50","100"],"tickvals":[0,50,100],"categoryorder":"array","categoryarray":["0","50","100"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.65296803652968,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":13.2835201328352},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"%","font":{"color":"rgba(0,0,0,1)","family":"","size":13.2835201328352}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"49d8350f7f16":{"y":{},"colour":{},"x":{},"text":{},"type":"scatter"},"49d83bd0bd7":{"y":{},"colour":{},"x":{},"text":{}},"49d86eb73a1":{"yintercept":{}},"49d85a352708":{"x":{},"y":{}},"49d8147161d5":{"x":{},"y":{}},"49d88e45958":{"y":{},"colour":{},"x":{},"label":{}}},"cur_data":"49d8350f7f16","visdat":{"49d8350f7f16":["function (y) ","x"],"49d83bd0bd7":["function (y) ","x"],"49d86eb73a1":["function (y) ","x"],"49d85a352708":["function (y) ","x"],"49d8147161d5":["function (y) ","x"],"49d88e45958":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="despesa-com-saúde" class="level3" data-number="5.2.3">
+<h3 data-number="5.2.3" class="anchored" data-anchor-id="despesa-com-saúde"><span class="header-section-number">5.2.3</span> Despesa com Saúde</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div id="htmlwidget-d8f8645458096b947132" style="width:100%;height:464px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d8f8645458096b947132">{"x":{"data":[{"x":[1.08694081567228,1.9855510737747,2.9037334871944,4.07192428149283,5.09509610687383,6.09387001185678,6.95826531779021,7.9409765066579,9.04053569678217,10.0958113885019,11.0617464894429,11.9973176650703,1.05290927663445,1.96823321986012,3.02762468503788,4.0827342633158,5.09349050270393,5.99030072954483,7.01060954537243,7.97060088613071,9.03361790897325,9.94187794094905,11.0154050919693,1.0236269351095,1.9295050162822,2.94907472892664,3.91572106634267,4.9984787164256,5.97177663468756,6.98315970064141,8.02758236578666,8.9672225416638,9.90360480183736,10.9519529282115,0.985563951777294,2.0595413621515,3.01550887743942,3.95218498711474,4.96855482808314,6.0101931523066,6.90019464315847,8.05100679611787,9.05391313750297,10.0521629945375,10.9712397811003,12.0962333932985,1.05322227487341,2.02598682846874,2.97929047038779,3.968916827254,4.91093269884586,6.06993245133199,7.02762422999367,7.90439691706561,8.91164618167095,9.91105162217282,10.9223614983261,0.927025662409142,2.08860539002344,2.93984153070487,4.09838162530214,5.05276457932778,5.93235461274162,6.90157649852335,7.90975835393183,9.08593868450262,10.0653627640568,11.0345810373779,12.0831876102369,0.977288806624711,2.02771412981674,2.94336381820031,4.03433554260991,4.99949094168842,6.03746878681704,6.98675762563944,8.09575659399852,9.00682902871631,10.0546583552379,10.9659439981915,12.0816226298455,1.01044243895449,1.94322781846859,3.05503202881664,4.09939584364183,4.96130055156536,5.93062741905451,6.963324079616,7.90629734019749,9.06007103864104,10.018134858273,10.9737663021311,0.938595544919372,1.92337027820759,2.90615207366645,4.08999146134593,4.99615430450067,6.08241848382167,7.08358500497416,7.94519750429317,9.08220067843795,10.02787895035,11.0429568149615,0.91044086124748,2.03079427625053,2.91468014358543,4.07330817547627,4.97146206344478,5.91218918492086,7.02077172873542,8.07868151874282,9.01468368796632,9.91716666244902,11.0714813759085,1.06563542298973,2.01785585414618,2.91190136410296,4.05834895861335,4.95120164514519,6.06489370856434,6.96345116468146,8.06138531109318,9.07645144769922,10.0567384669092,10.9326451889239,1.09520349423401,2.03420566748828,2.99276023553684,3.9715867430903,5.03603845979087,5.99087578910403,7.04487638068385,7.90345961642452,9.02963410173543,10.0186855663545,11.0826383620035,0.982274972833693,2.09912801575847,3.08920697444119,3.91835638410412,4.96949961129576,6.08422945938073,7.03452586522326,7.97723787985742,9.01105913072825,1.04302595607005,1.99608168760315,3.02886424893513,4.05497496216558,5.08057041042484,6.00473528928123,6.95839126277715,8.05115280924365,9.05419075954705],"y":[5.09081933964044,9.05862242234871,15.0929988115095,22.0546818715055,29.9304300323129,37.9999790678732,44.9850786004215,53.0646140726749,61.074463631399,69.0823903009295,78.0213435208891,100.091615866544,1.97189316926524,7.97208350468427,16.9991777498275,24.0753834514413,32.9588078168221,41.0497264112346,48.9625550715253,57.0815656149294,64.9741227769293,72.0298062004149,81.0141319003887,4.90876189824194,11.02862302633,18.0235861343797,24.9625657575205,34.0145386583637,41.9700481011998,48.9367732668761,57.9422398263589,65.0810252520256,72.9341834021266,82.0092855279334,5.08321222262457,11.9129318969324,17.9291438259184,25.0656530589331,32.0788057153113,38.9860843381379,47.073991124006,54.066828437103,60.9704127260018,69.0239262861665,76.9633499728516,99.945447844686,1.93074876312166,7.93670064839534,15.9462061610073,24.0488077109214,31.0119507347234,37.0241667707916,43.9540394362062,51.9143334919121,61.0409718874842,68.0810873345006,77.0547389032319,2.02602818482555,7.93993105161935,15.9514962628018,23.081589684682,30.9825777856633,38.9005967940669,47.0783447404392,56.0145814836491,64.0178510897327,72.9639353320934,81.0490592837334,99.9949083645362,6.02098356070928,12.9254139566794,21.0055026635993,27.9122357063461,38.9923261929769,45.0397403421812,53.0838134781923,62.0371696694288,69.9790020349435,78.0326109029818,86.0022379886359,99.9994568432216,9.025010266155,15.937978422828,22.9075922614429,31.0002196141984,39.0855718838982,47.0867604336236,55.9616507512983,63.0881413089577,71.9785606720019,79.9012046855874,87.080495901918,6.01605770708993,13.057308293134,22.0587521283887,31.0483480969444,39.0798211709131,48.9253225124907,58.0735190234147,65.0052202402614,75.0868487948552,82.9210745479912,92.0693159240298,5.05190103203058,12.0110441694502,19.9214177883696,28.0778978554532,37.0226681589615,43.9690519776195,50.958033147594,60.0050192743074,68.0190057752188,75.0116038184147,82.9748085449915,5.02297058263794,10.9963113744743,19.0639826672152,25.0683284571394,32.9225160666741,43.0959159177262,50.9366688453127,60.0263622424565,66.9645912719425,77.9106194276828,87.0664307015948,5.01352971349843,15.0177452650387,17.9339258004446,24.9101023783907,32.9480264865328,40.091428188514,49.9858067247085,57.9425425862893,65.9550066473894,74.9808952176012,81.9893083389848,4.03378950953484,10.0184868006501,22.0727235571481,31.9340797506273,43.0828093024902,54.0348799143918,67.0614451640286,81.9165681785438,93.0578791260719,5.05304107023403,11.9761375897564,25.9320602115244,31.9136667868122,45.0887654482853,52.096563145984,66.9462905491237,80.9481196624227,91.0387617399916],"text":["percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2008","percentual:   9<br />cores: blue<br />mes: fev<br />ANO:  2008","percentual:  15<br />cores: blue<br />mes: mar<br />ANO:  2008","percentual:  22<br />cores: blue<br />mes: abr<br />ANO:  2008","percentual:  30<br />cores: blue<br />mes: mai<br />ANO:  2008","percentual:  38<br />cores: blue<br />mes: jun<br />ANO:  2008","percentual:  45<br />cores: blue<br />mes: jul<br />ANO:  2008","percentual:  53<br />cores: blue<br />mes: ago<br />ANO:  2008","percentual:  61<br />cores: blue<br />mes: set<br />ANO:  2008","percentual:  69<br />cores: blue<br />mes: out<br />ANO:  2008","percentual:  78<br />cores: blue<br />mes: nov<br />ANO:  2008","percentual: 100<br />cores: blue<br />mes: dez<br />ANO:  2008","percentual:   2<br />cores: blue<br />mes: jan<br />ANO:  2009","percentual:   8<br />cores: blue<br />mes: fev<br />ANO:  2009","percentual:  17<br />cores: blue<br />mes: mar<br />ANO:  2009","percentual:  24<br />cores: blue<br />mes: abr<br />ANO:  2009","percentual:  33<br />cores: blue<br />mes: mai<br />ANO:  2009","percentual:  41<br />cores: blue<br />mes: jun<br />ANO:  2009","percentual:  49<br />cores: blue<br />mes: jul<br />ANO:  2009","percentual:  57<br />cores: blue<br />mes: ago<br />ANO:  2009","percentual:  65<br />cores: blue<br />mes: set<br />ANO:  2009","percentual:  72<br />cores: blue<br />mes: out<br />ANO:  2009","percentual:  81<br />cores: blue<br />mes: nov<br />ANO:  2009","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2010","percentual:  11<br />cores: blue<br />mes: fev<br />ANO:  2010","percentual:  18<br />cores: blue<br />mes: mar<br />ANO:  2010","percentual:  25<br />cores: blue<br />mes: abr<br />ANO:  2010","percentual:  34<br />cores: blue<br />mes: mai<br />ANO:  2010","percentual:  42<br />cores: blue<br />mes: jun<br />ANO:  2010","percentual:  49<br />cores: blue<br />mes: jul<br />ANO:  2010","percentual:  58<br />cores: blue<br />mes: ago<br />ANO:  2010","percentual:  65<br />cores: blue<br />mes: set<br />ANO:  2010","percentual:  73<br />cores: blue<br />mes: out<br />ANO:  2010","percentual:  82<br />cores: blue<br />mes: nov<br />ANO:  2010","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2011","percentual:  12<br />cores: blue<br />mes: fev<br />ANO:  2011","percentual:  18<br />cores: blue<br />mes: mar<br />ANO:  2011","percentual:  25<br />cores: blue<br />mes: abr<br />ANO:  2011","percentual:  32<br />cores: blue<br />mes: mai<br />ANO:  2011","percentual:  39<br />cores: blue<br />mes: jun<br />ANO:  2011","percentual:  47<br />cores: blue<br />mes: jul<br />ANO:  2011","percentual:  54<br />cores: blue<br />mes: ago<br />ANO:  2011","percentual:  61<br />cores: blue<br />mes: set<br />ANO:  2011","percentual:  69<br />cores: blue<br />mes: out<br />ANO:  2011","percentual:  77<br />cores: blue<br />mes: nov<br />ANO:  2011","percentual: 100<br />cores: blue<br />mes: dez<br />ANO:  2011","percentual:   2<br />cores: blue<br />mes: jan<br />ANO:  2012","percentual:   8<br />cores: blue<br />mes: fev<br />ANO:  2012","percentual:  16<br />cores: blue<br />mes: mar<br />ANO:  2012","percentual:  24<br />cores: blue<br />mes: abr<br />ANO:  2012","percentual:  31<br />cores: blue<br />mes: mai<br />ANO:  2012","percentual:  37<br />cores: blue<br />mes: jun<br />ANO:  2012","percentual:  44<br />cores: blue<br />mes: jul<br />ANO:  2012","percentual:  52<br />cores: blue<br />mes: ago<br />ANO:  2012","percentual:  61<br />cores: blue<br />mes: set<br />ANO:  2012","percentual:  68<br />cores: blue<br />mes: out<br />ANO:  2012","percentual:  77<br />cores: blue<br />mes: nov<br />ANO:  2012","percentual:   2<br />cores: blue<br />mes: jan<br />ANO:  2013","percentual:   8<br />cores: blue<br />mes: fev<br />ANO:  2013","percentual:  16<br />cores: blue<br />mes: mar<br />ANO:  2013","percentual:  23<br />cores: blue<br />mes: abr<br />ANO:  2013","percentual:  31<br />cores: blue<br />mes: mai<br />ANO:  2013","percentual:  39<br />cores: blue<br />mes: jun<br />ANO:  2013","percentual:  47<br />cores: blue<br />mes: jul<br />ANO:  2013","percentual:  56<br />cores: blue<br />mes: ago<br />ANO:  2013","percentual:  64<br />cores: blue<br />mes: set<br />ANO:  2013","percentual:  73<br />cores: blue<br />mes: out<br />ANO:  2013","percentual:  81<br />cores: blue<br />mes: nov<br />ANO:  2013","percentual: 100<br />cores: blue<br />mes: dez<br />ANO:  2013","percentual:   6<br />cores: blue<br />mes: jan<br />ANO:  2014","percentual:  13<br />cores: blue<br />mes: fev<br />ANO:  2014","percentual:  21<br />cores: blue<br />mes: mar<br />ANO:  2014","percentual:  28<br />cores: blue<br />mes: abr<br />ANO:  2014","percentual:  39<br />cores: blue<br />mes: mai<br />ANO:  2014","percentual:  45<br />cores: blue<br />mes: jun<br />ANO:  2014","percentual:  53<br />cores: blue<br />mes: jul<br />ANO:  2014","percentual:  62<br />cores: blue<br />mes: ago<br />ANO:  2014","percentual:  70<br />cores: blue<br />mes: set<br />ANO:  2014","percentual:  78<br />cores: blue<br />mes: out<br />ANO:  2014","percentual:  86<br />cores: blue<br />mes: nov<br />ANO:  2014","percentual: 100<br />cores: blue<br />mes: dez<br />ANO:  2014","percentual:   9<br />cores: blue<br />mes: jan<br />ANO:  2015","percentual:  16<br />cores: blue<br />mes: fev<br />ANO:  2015","percentual:  23<br />cores: blue<br />mes: mar<br />ANO:  2015","percentual:  31<br />cores: blue<br />mes: abr<br />ANO:  2015","percentual:  39<br />cores: blue<br />mes: mai<br />ANO:  2015","percentual:  47<br />cores: blue<br />mes: jun<br />ANO:  2015","percentual:  56<br />cores: blue<br />mes: jul<br />ANO:  2015","percentual:  63<br />cores: blue<br />mes: ago<br />ANO:  2015","percentual:  72<br />cores: blue<br />mes: set<br />ANO:  2015","percentual:  80<br />cores: blue<br />mes: out<br />ANO:  2015","percentual:  87<br />cores: blue<br />mes: nov<br />ANO:  2015","percentual:   6<br />cores: blue<br />mes: jan<br />ANO:  2016","percentual:  13<br />cores: blue<br />mes: fev<br />ANO:  2016","percentual:  22<br />cores: blue<br />mes: mar<br />ANO:  2016","percentual:  31<br />cores: blue<br />mes: abr<br />ANO:  2016","percentual:  39<br />cores: blue<br />mes: mai<br />ANO:  2016","percentual:  49<br />cores: blue<br />mes: jun<br />ANO:  2016","percentual:  58<br />cores: blue<br />mes: jul<br />ANO:  2016","percentual:  65<br />cores: blue<br />mes: ago<br />ANO:  2016","percentual:  75<br />cores: blue<br />mes: set<br />ANO:  2016","percentual:  83<br />cores: blue<br />mes: out<br />ANO:  2016","percentual:  92<br />cores: blue<br />mes: nov<br />ANO:  2016","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2017","percentual:  12<br />cores: blue<br />mes: fev<br />ANO:  2017","percentual:  20<br />cores: blue<br />mes: mar<br />ANO:  2017","percentual:  28<br />cores: blue<br />mes: abr<br />ANO:  2017","percentual:  37<br />cores: blue<br />mes: mai<br />ANO:  2017","percentual:  44<br />cores: blue<br />mes: jun<br />ANO:  2017","percentual:  51<br />cores: blue<br />mes: jul<br />ANO:  2017","percentual:  60<br />cores: blue<br />mes: ago<br />ANO:  2017","percentual:  68<br />cores: blue<br />mes: set<br />ANO:  2017","percentual:  75<br />cores: blue<br />mes: out<br />ANO:  2017","percentual:  83<br />cores: blue<br />mes: nov<br />ANO:  2017","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2018","percentual:  11<br />cores: blue<br />mes: fev<br />ANO:  2018","percentual:  19<br />cores: blue<br />mes: mar<br />ANO:  2018","percentual:  25<br />cores: blue<br />mes: abr<br />ANO:  2018","percentual:  33<br />cores: blue<br />mes: mai<br />ANO:  2018","percentual:  43<br />cores: blue<br />mes: jun<br />ANO:  2018","percentual:  51<br />cores: blue<br />mes: jul<br />ANO:  2018","percentual:  60<br />cores: blue<br />mes: ago<br />ANO:  2018","percentual:  67<br />cores: blue<br />mes: set<br />ANO:  2018","percentual:  78<br />cores: blue<br />mes: out<br />ANO:  2018","percentual:  87<br />cores: blue<br />mes: nov<br />ANO:  2018","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2019","percentual:  15<br />cores: blue<br />mes: fev<br />ANO:  2019","percentual:  18<br />cores: blue<br />mes: mar<br />ANO:  2019","percentual:  25<br />cores: blue<br />mes: abr<br />ANO:  2019","percentual:  33<br />cores: blue<br />mes: mai<br />ANO:  2019","percentual:  40<br />cores: blue<br />mes: jun<br />ANO:  2019","percentual:  50<br />cores: blue<br />mes: jul<br />ANO:  2019","percentual:  58<br />cores: blue<br />mes: ago<br />ANO:  2019","percentual:  66<br />cores: blue<br />mes: set<br />ANO:  2019","percentual:  75<br />cores: blue<br />mes: out<br />ANO:  2019","percentual:  82<br />cores: blue<br />mes: nov<br />ANO:  2019","percentual:   4<br />cores: blue<br />mes: jan<br />ANO:  2020","percentual:  10<br />cores: blue<br />mes: fev<br />ANO:  2020","percentual:  22<br />cores: blue<br />mes: mar<br />ANO:  2020","percentual:  32<br />cores: blue<br />mes: abr<br />ANO:  2020","percentual:  43<br />cores: blue<br />mes: mai<br />ANO:  2020","percentual:  54<br />cores: blue<br />mes: jun<br />ANO:  2020","percentual:  67<br />cores: blue<br />mes: jul<br />ANO:  2020","percentual:  82<br />cores: blue<br />mes: ago<br />ANO:  2020","percentual:  93<br />cores: blue<br />mes: set<br />ANO:  2020","percentual:   5<br />cores: blue<br />mes: jan<br />ANO:  2021","percentual:  12<br />cores: blue<br />mes: fev<br />ANO:  2021","percentual:  26<br />cores: blue<br />mes: mar<br />ANO:  2021","percentual:  32<br />cores: blue<br />mes: abr<br />ANO:  2021","percentual:  45<br />cores: blue<br />mes: mai<br />ANO:  2021","percentual:  52<br />cores: blue<br />mes: jun<br />ANO:  2021","percentual:  67<br />cores: blue<br />mes: jul<br />ANO:  2021","percentual:  81<br />cores: blue<br />mes: ago<br />ANO:  2021","percentual:  91<br />cores: blue<br />mes: set<br />ANO:  2021"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,0,0,1)","opacity":0.2,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)"}},"hoveron":"points","name":"blue","legendgroup":"blue","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[12.0569933913648,11.9102389612701,12.0139878019225,11.9913270714693,12.065053526964,11.9530276423786,11.9707619402558,11.9291076332796,10.0438357009087,11.0177260925993,11.9541294495109,9.91366957612336,10.9198288165033,12.0582165865693],"y":[106.000729679968,101.073202431994,101.008972719125,102.072266729176,111.036521152454,104.918738825526,103.969368155161,104.091041165311,101.060863236943,109.988289472274,133.036983413994,103.062294597318,114.070431815367,144.979046827462],"text":["percentual: 106<br />cores: red<br />mes: dez<br />ANO:  2009","percentual: 101<br />cores: red<br />mes: dez<br />ANO:  2010","percentual: 101<br />cores: red<br />mes: dez<br />ANO:  2012","percentual: 102<br />cores: red<br />mes: dez<br />ANO:  2015","percentual: 111<br />cores: red<br />mes: dez<br />ANO:  2016","percentual: 105<br />cores: red<br />mes: dez<br />ANO:  2017","percentual: 104<br />cores: red<br />mes: dez<br />ANO:  2018","percentual: 104<br />cores: red<br />mes: dez<br />ANO:  2019","percentual: 101<br />cores: red<br />mes: out<br />ANO:  2020","percentual: 110<br />cores: red<br />mes: nov<br />ANO:  2020","percentual: 133<br />cores: red<br />mes: dez<br />ANO:  2020","percentual: 103<br />cores: red<br />mes: out<br />ANO:  2021","percentual: 114<br />cores: red<br />mes: nov<br />ANO:  2021","percentual: 145<br />cores: red<br />mes: dez<br />ANO:  2021"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,255,1)","opacity":0.2,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,0,255,1)"}},"hoveron":"points","name":"red","legendgroup":"red","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8],"y":[4,11,19,26,34,51,59,66],"text":["percentual:  4<br />cores: blue<br />mes: jan<br />ANO:  2022","percentual: 11<br />cores: blue<br />mes: fev<br />ANO:  2022","percentual: 19<br />cores: blue<br />mes: mar<br />ANO:  2022","percentual: 26<br />cores: blue<br />mes: abr<br />ANO:  2022","percentual: 34<br />cores: blue<br />mes: mai<br />ANO:  2022","percentual: 51<br />cores: blue<br />mes: jun<br />ANO:  2022","percentual: 59<br />cores: blue<br />mes: jul<br />ANO:  2022","percentual: 66<br />cores: blue<br />mes: ago<br />ANO:  2022"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)"}},"hoveron":"points","name":"blue","legendgroup":"blue","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.4,12.6],"y":[100,100],"text":"yintercept: 100","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"visible":false,"showlegend":false,"xaxis":null,"yaxis":null,"hoverinfo":"text","frame":null},{"x":[1,2,3,4,5,6,7,8],"y":[4,11,19,26,34,51,59,66],"text":["month(as.Date(date)): 1<br />percentual:  4","month(as.Date(date)): 2<br />percentual: 11","month(as.Date(date)): 3<br />percentual: 19","month(as.Date(date)): 4<br />percentual: 26","month(as.Date(date)): 5<br />percentual: 34","month(as.Date(date)): 6<br />percentual: 51","month(as.Date(date)): 7<br />percentual: 59","month(as.Date(date)): 8<br />percentual: 66"],"type":"scatter","mode":"lines","line":{"width":0.755905511811024,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[8],"y":[74],"text":"66%","hovertext":"percentual + 8: 74<br />cores: black<br />mes: ago<br />paste0(round(percentual, 1), \"%\"): 66%","textfont":{"size":15.1181102362205,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":42.1685346616853,"r":7.30593607305936,"b":40.4483188044832,"l":44.1677044416771},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"<b> Despesa de 66% até ago/2022 <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":15.9402241594022},"x":0.5,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,12.6],"tickmode":"array","ticktext":["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12],"categoryorder":"array","categoryarray":["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":13.2835201328352},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"mês","font":{"color":"rgba(0,0,0,1)","family":"","size":13.2835201328352}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-5.22166614009533,152.131461730679],"tickmode":"array","ticktext":["0","50","100","150"],"tickvals":[0,50,100,150],"categoryorder":"array","categoryarray":["0","50","100","150"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.65296803652968,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":13.2835201328352},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"%","font":{"color":"rgba(0,0,0,1)","family":"","size":13.2835201328352}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"49d846221344":{"y":{},"colour":{},"x":{},"text":{},"type":"scatter"},"49d825c01e88":{"y":{},"colour":{},"x":{},"text":{}},"49d859c2748b":{"yintercept":{}},"49d827697887":{"x":{},"y":{}},"49d8430055e3":{"x":{},"y":{}},"49d8104b543a":{"y":{},"colour":{},"x":{},"label":{}}},"cur_data":"49d846221344","visdat":{"49d846221344":["function (y) ","x"],"49d825c01e88":["function (y) ","x"],"49d859c2748b":["function (y) ","x"],"49d827697887":["function (y) ","x"],"49d8430055e3":["function (y) ","x"],"49d8104b543a":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="receita-corrente-líquida" class="level3" data-number="5.2.4">
+<h3 data-number="5.2.4" class="anchored" data-anchor-id="receita-corrente-líquida"><span class="header-section-number">5.2.4</span> Receita Corrente Líquida</h3>
+</section>
+<section id="resultado-previdenciário" class="level3" data-number="5.2.5">
+<h3 data-number="5.2.5" class="anchored" data-anchor-id="resultado-previdenciário"><span class="header-section-number">5.2.5</span> Resultado Previdenciário</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Col1</th>
+<th>Col2</th>
+<th>Col3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="disponibilidade-por-fonte-de-recurso" class="level3" data-number="5.2.6">
+<h3 data-number="5.2.6" class="anchored" data-anchor-id="disponibilidade-por-fonte-de-recurso"><span class="header-section-number">5.2.6</span> Disponibilidade por Fonte de Recurso</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Col1</th>
+<th>Col2</th>
+<th>Col3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="restos-a-pagar" class="level3" data-number="5.2.7">
+<h3 data-number="5.2.7" class="anchored" data-anchor-id="restos-a-pagar"><span class="header-section-number">5.2.7</span> Restos a Pagar</h3>
+</section>
+</section>
+<section id="rgf" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="rgf"><span class="header-section-number">5.3</span> RGF</h2>
+<section id="despesa-com-pessoal" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="despesa-com-pessoal"><span class="header-section-number">5.3.1</span> Despesa com pessoal</h3>
+</section>
+<section id="dívida" class="level3" data-number="5.3.2">
+<h3 data-number="5.3.2" class="anchored" data-anchor-id="dívida"><span class="header-section-number">5.3.2</span> Dívida</h3>
+</section>
+<section id="operações-de-crédito" class="level3" data-number="5.3.3">
+<h3 data-number="5.3.3" class="anchored" data-anchor-id="operações-de-crédito"><span class="header-section-number">5.3.3</span> Operações de Crédito</h3>
+</section>
+<section id="section" class="level3" data-number="5.3.4">
+<h3 data-number="5.3.4" class="anchored" data-anchor-id="section"><span class="header-section-number">5.3.4</span> </h3>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./tesouro_gerencial.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tesouro Gerencial</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

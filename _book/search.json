@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "intro.html",
+    "href": "intro.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "See Knuth (1984) for additional discussion of literate programming.\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+  },
+  {
+    "objectID": "summary.html",
+    "href": "summary.html",
+    "title": "2  Summary",
+    "section": "",
+    "text": "1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "siafi.html#balancete",
+    "href": "siafi.html#balancete",
+    "title": "3  Siafi",
+    "section": "3.2 BALANCETE",
+    "text": "3.2 BALANCETE\nImagens do SIAFI.\n\n\n\nBalancete"
+  },
+  {
+    "objectID": "siafi.html#conor",
+    "href": "siafi.html#conor",
+    "title": "3  Siafi",
+    "section": "3.3 CONOR",
+    "text": "3.3 CONOR\n\n3.3.1"
+  },
+  {
+    "objectID": "references.html",
+    "href": "references.html",
+    "title": "References",
+    "section": "",
+    "text": "Knuth, Donald E. 1984. “Literate Programming.” Comput.\nJ. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+  },
+  {
+    "objectID": "siafi.html",
+    "href": "siafi.html",
+    "title": "3  Siafi",
+    "section": "",
+    "text": "knitr::opts_chunk$set (echo= TRUE, warning = FALSE, message = FALSE)"
+  },
+  {
+    "objectID": "siafi.html#conrazao",
+    "href": "siafi.html#conrazao",
+    "title": "3  Siafi",
+    "section": "3.1 CONRAZAO",
+    "text": "3.1 CONRAZAO\n\n# library(vroom)\nlibrary(tidyverse)\nlibrary(janitor)\nlibrary(DT)\n\noptions(encoding = \"latin1\")\n\noptions(max.print=999999)\n\nbalan_siafi <- (readLines(\"https://raw.githubusercontent.com/andreferraribr/book/main/BALAN.txt\" ,encoding = \"UFT-8\"))\n\nbalan_siafi <- str_replace_all(balan_siafi,\"\\\"\",\"'\")\n\nbalancete_clean <- tail(balan_siafi,-21)\n\nbalancete_clean <- head(balancete_clean, -1)\n\nwriteLines(balancete_clean, \"balancete_clean.txt\")    \n\nbalancete <- as.data.frame( \n  read.fortran(\"balancete_clean.txt\",c(\"A15\",\"A40\",\"A21\",\"A1\")))\n\nwrite_csv2(balancete,\"balancete.csv\")\n\nnames(balancete) <- c(\"conta_id_siafi\",\"conta_siafi\",\"saldo_siafi\",\"tipo_saldo\")\n\nbalancete <- balancete %>% mutate(saldo_siafi = \n                                  parse_number(\n                                  saldo_siafi,\n                                  locale = locale(decimal_mark = \",\",\n                                                  grouping_mark = \".\")))\n\nbalancete <- balancete %>% mutate(conta_id = \n          ( str_replace_all(balancete$conta_id_siafi,\n              \"[^[:alnum:]]\", \"\")))\n\nbalancete$conta_id <- type.convert(balancete$conta_id)\n\ndatatable(balancete) %>% formatCurrency(\n  \"saldo_siafi\",  currency = \"R$ \",\n  interval = 3,\n  mark = \".\",\n  digits = 2,\n  dec.mark = \",\",\n  before = TRUE,\n  zero.print = NULL,\n  rows = NULL\n)"
+  },
+  {
+    "objectID": "linguagem_r.html",
+    "href": "linguagem_r.html",
+    "title": "5  linguagem_r",
+    "section": "",
+    "text": "# https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html\nknitr::opts_chunk$set( echo=FALSE, warning=FALSE, message=FALSE)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDespesa com Saúde"
+  },
+  {
+    "objectID": "linguagem_r.html#rreo",
+    "href": "linguagem_r.html#rreo",
+    "title": "5  Relatórios Fiscais",
+    "section": "5.2 RREO",
+    "text": "5.2 RREO\n\n5.2.1 Pacotes e Funções\n\n# https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html\nknitr::opts_chunk$set( echo=FALSE, warning=FALSE, message=FALSE)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n5.2.2 Despesa com Educação\nDespesa com Educação\n\n\n\n\n\n\n\n\n5.2.3 Despesa com Saúde\n\n\n\n\n\n\n\n\n5.2.4 Receita Corrente Líquida\n\n\n5.2.5 Resultado Previdenciário\n\n\n\nCol1\nCol2\nCol3\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n5.2.6 Disponibilidade por Fonte de Recurso\n\n\n\nCol1\nCol2\nCol3\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n5.2.7 Restos a Pagar"
+  },
+  {
+    "objectID": "linguagem_r.html#rgf",
+    "href": "linguagem_r.html#rgf",
+    "title": "5  Relatórios Fiscais",
+    "section": "5.3 RGF",
+    "text": "5.3 RGF\n\n5.3.1 Despesa com pessoal\n\n\n5.3.2 Dívida\n\n\n5.3.3 Operações de Crédito\n\n\n5.3.4"
+  }
+]

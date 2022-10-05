@@ -1,0 +1,110 @@
+---
+title: "dash_santa_teresa"
+editor: visual
+---
+
+```{r}
+# https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
+knitr::opts_chunk$set( echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r}
+# Loading packages
+
+library(purrr)
+library(flexdashboard)
+library(shiny)
+library(tidyverse)
+library(readxl)
+library(DT)
+library(plotly)
+library(lubridate)
+library(RcppRoll)
+library(scales)
+library(ggrepel)
+library(forcats)
+library(readr)
+```
+
+```{r}
+servidores <- read_csv("servidores.csv", 
+    col_types = cols(admissao_data = col_date(format = "%d/%m/%Y")))
+
+datatable( servidores %>%  group_by(regime, competencia_mes) %>% count(regime) %>% pivot_wider(names_from = competencia_mes, values_from = n))
+```
+
+```{r}
+datatable( servidores %>%  group_by(setor , competencia_mes) %>% count(setor) %>% pivot_wider(names_from = competencia_mes, values_from = n))
+```
+
+```{r}
+datatable( servidores %>%  group_by(cargo , competencia_mes) %>% count(cargo) %>% pivot_wider(names_from = competencia_mes, values_from = n))
+
+```
+
+```{r}
+orcamento_receita <- read_csv("orcamento_receita.csv")
+
+orcamento_receita <- orcamento_receita %>% separate(rubrica,into = c("rubrica_cod", "rubrica_nome")," - ")
+
+orcamento_receita <- orcamento_receita %>% separate(origem,into = c("origem_cod", "origem_nome")," - ")
+
+datatable(orcamento_receita %>% group_by(origem_cod, ano) %>% summarise(valor = sum(valor)) %>% pivot_wider(names_from = ano, values_from = valor))
+
+orcamento_origem <- orcamento_receita %>% group_by(origem_cod, ano) %>% summarise(valor = sum(valor)) %>% pivot_wider(names_from = ano, values_from = valor)
+
+nomes_origem <- orcamento_receita %>% filter(ano==2022)
+
+nomes_origem <- unique(nomes_origem %>% select(origem_cod, origem_nome))
+
+orcamento_origem <- left_join(orcamento_origem, nomes_origem %>% select(origem_cod, origem_nome)) %>% relocate(origem_nome, .before = origem_cod)
+```
+
+```{r}
+receitas <- read_csv("receitas.csv")
+
+receitas <- receitas %>% separate(rubrica,into = c("rubrica_cod", "rubrica_nome")," - ")
+
+receitas <- receitas %>% separate(origem,into = c("origem_cod", "origem_nome")," - ")
+
+receitas <- receitas %>% mutate(ano = year(data))
+
+datatable(receitas %>% group_by(origem_cod, ano) %>% summarise(valor = sum(valor)) %>% pivot_wider(names_from = ano, values_from = valor))
+
+receita_origem <- receitas %>% group_by(origem_cod, ano) %>% summarise(valor = sum(valor)) %>% pivot_wider(names_from = ano, values_from = valor)
+
+nomes_origem <- receitas %>% filter(ano==2022)
+
+nomes_origem <- unique(nomes_origem %>% select(origem_cod, origem_nome))
+
+receita_origem <- left_join(receita_origem, nomes_origem %>% select(origem_cod, origem_nome)) %>% relocate(origem_nome, .before = origem_cod)
+
+datatable(receita_origem)
+```
+
+```{r}
+licitacoes <- read_csv("licitacoes.csv")
+
+licitacoes$valor <- str_remove_all(licitacoes$valor,"R")
+licitacoes$valor <- str_remove_all(licitacoes$valor,"\\$")
+licitacoes$valor <- str_replace(licitacoes$valor,"--", "0,00")
+licitacoes$valor <- str_trim (licitacoes$valor)
+licitacoes$valor <- parse_number(licitacoes$valor, locale = locale(decimal_mark = ","))
+
+licitacoes <- licitacoes %>% mutate(ano = year(data_publicacao))
+
+datatable(licitacoes %>% group_by(ano) %>% summarise(valor = sum(valor, na.rm = TRUE)/1000))
+
+# https://livro.curso-r.com/5-2-readr.html#parseando-valores
+
+```
+
+```{r}
+pagamentos <- read_csv("pagamentos.csv")
+datatable(pagamentos %>% group_by(funcao) %>% summarise(valor = sum(valor, na.rm = FALSE)))
+
+datatable(pagamentos %>% group_by(entidade_nome) %>% summarise(valor = sum(valor, na.rm = FALSE)))
+
+datatable(pagamentos %>% group_by(unidade) %>% summarise(valor = sum(valor, na.rm = FALSE)))
+
+```

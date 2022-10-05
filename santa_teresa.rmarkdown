@@ -1,0 +1,77 @@
+---
+title: "santa_teresa"
+editor: visual
+---
+
+```{r}
+# Loading packages
+library(httr)
+library(jsonlite)
+library(purrr)
+library(tidyverse)
+library(DT)
+
+
+# https://www2.santateresa.es.gov.br/transparencia/api/webservice#api_10
+
+
+
+endpoint <- "https://www2.santateresa.es.gov.br/transparencia/api/pagamentos"
+
+call <- paste0(endpoint, "?page=1&page_size=100&data_inicio=01/01/2007&data_fim=31/12/2007")
+
+
+
+receita_api <- GET(url = call)
+
+# Getting status of HTTP Call
+status_code(receita_api)
+str(content(receita_api))
+
+
+get_receita_text <- content(receita_api,
+                          "text", encoding = "UTF-8")
+
+
+# Parsing data in JSON
+receita_api_json <- fromJSON(get_receita_text,
+                           flatten = TRUE)
+
+# receita <- as.data.frame(receita_api_json$registros)
+url_api <- c()
+
+for (x in (1:as.integer(receita_api_json$pagina_total))){
+
+    
+  paginas_api <-   paste0(endpoint, "?page=",x,"&page_size=100&data_inicio=01/01/2007&data_fim=31/12/2007")
+  url_api <-  c(url_api,paginas_api)
+}
+
+
+json2df = function(a){ 
+  # "a" é a URL
+  f_api <-   GET(a)
+  f_txt <- content(f_api, as="text", encoding="UTF-8")
+  f_json <- fromJSON(f_txt, flatten = TRUE)
+ 
+  f_df <-as.data.frame(f_json$registros) 
+}
+
+bind_json2df = function(a){ map(a,json2df)}
+
+relatorios = function(a){map_dfr(bind_json2df(a), bind_rows)}
+
+
+receita <- relatorios(url_api)
+
+
+# write.csv(ddd, "empenhos.csv")
+
+
+
+```
+
+```{r}
+datatable(receita)
+```
+
