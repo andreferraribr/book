@@ -16,7 +16,7 @@ options(encoding = "latin1")
 
 options(max.print=999999)
 
-balan_siafi <- (readLines("https://raw.githubusercontent.com/andreferraribr/book/main/BALAN.txt" ,encoding = "UFT-8"))
+balan_siafi <- (readLines("https://raw.githubusercontent.com/andreferraribr/book/main/siafi/BALAN.txt" ,encoding = "UFT-8"))
 
 balan_siafi <- str_replace_all(balan_siafi,"\"","'")
 
@@ -45,7 +45,7 @@ balancete <- balancete %>% mutate(conta_id =
 
 balancete$conta_id <- type.convert(balancete$conta_id)
 
-datatable(balancete) %>% formatCurrency(
+datatable(head(balancete,10)) %>% formatCurrency(
   "saldo_siafi",  currency = "R$ ",
   interval = 3,
   mark = ".",
@@ -54,14 +54,17 @@ datatable(balancete) %>% formatCurrency(
   before = TRUE,
   zero.print = NULL,
   rows = NULL
-)
+)%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
+
+#https://resultfor.dev/347904-changing-font-size-in-r-datatables-dt
 ```
 
 ## BALANCETE
 
 Imagens do SIAFI.
 
-![Balancete](balancete.png)
+![Balance](siafi/balancete.png)
 
 ## CONOR
 

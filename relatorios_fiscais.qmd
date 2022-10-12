@@ -11,7 +11,7 @@ editor: visual
 
 ```{r}
 # https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
-knitr::opts_chunk$set( echo=FALSE, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE)
 ```
 
 ```{r}
@@ -31,14 +31,21 @@ library(RcppRoll)
 library(scales)
 library(ggrepel)
 library(forcats)
+library(janitor)
+library(rjson)
+library(stringr)
+library(jsonlite)
+library(vroom)
+library(httr)
+library(purrr)
 ```
 
 ```{r}
-tema <- theme_classic() + theme(plot.title=element_text(size=40,hjust = 0.5 ),
+tema <- theme_classic() + theme(plot.title=element_text(size=12,hjust = 0.5 ),
           # axis.text = element_text(size = 20),
-          axis.text.x = element_text(size=25),
-          axis.title.y=element_text(size=25),
-          axis.text.y=element_text(size=25),
+          axis.text.x = element_text(size=10),
+          axis.title.y=element_text(size=10),
+          axis.text.y=element_text(size=10),
           axis.ticks.y=element_blank(),
           legend.position = "none")
 # https://rpubs.com/mclaire19/ggplot2-custom-themes
@@ -54,26 +61,14 @@ plot_rolling = function(df){
   # plotar o point da UF selecionada
     # geom_label(label = rcl %>% filter (mes== max(mes)) %>% summarise(acumulado=acumulado))+
     # 
+
   
-  geom_point(data = df%>% filter (mes %in% c(max(mes),max(mes)-years(1))), aes(x=as.Date(mes), y=acumulado),size =7)+
-    
-   geom_label_repel (size = 8, data = df%>% filter (mes %in% c(max(mes), max(mes)-years(1))), aes(x=as.Date(mes), y=acumulado,label=paste0( prettyNum(round(acumulado,1), big.mark = ".", decimal.mark = ",", nsmall = 1), " (",month(mes,label = TRUE) ,")")))+
-    
-  
-    
   ggtitle(paste0("Posição: ",(month(max(as.Date(df$mes)), label=TRUE, abbr = FALSE)), "/",(year(max(as.Date(df$mes)))) ))+
     theme_classic() +
     ylab("R$ bilhões") +
     xlab("") +
     tema+
-    # theme(plot.title=element_text(size=40,hjust = 0.5 ),
-    #       # axis.text = element_text(size = 20),
-    #       axis.text.x = element_text(size=25),
-    #       axis.title.y=element_blank(),
-    #       axis.text.y=element_text(size=25),
-    #       axis.ticks.y=element_blank(),
-    #       legend.position = "none")+
-    scale_x_date(limits = c(as.Date (min(df$mes)),as.Date(max(df$mes))) ,breaks=date_breaks("1 year"),
+      scale_x_date(limits = c(as.Date (min(df$mes)),as.Date(max(df$mes))) ,breaks=date_breaks("1 year"),
       labels=date_format( "%Y")) +
     scale_fill_manual(values = c(df$cores))
  }
@@ -88,7 +83,7 @@ plot_geral = function(df){
     # geom_label(label = rcl %>% filter (mes== max(mes)) %>% summarise(acumulado=acumulado))+
     # 
   
-  geom_point(data = df%>% filter (mes %in% c(max(mes),max(mes)-years(1))), aes(x=as.Date(mes), y=acumulado),size =5)+
+  geom_point(data = df%>% filter (mes %in% max(mes)), aes(x=as.Date(mes), y=acumulado),size =3)+
     
    geom_label_repel (size = 7, data = df%>% filter (mes %in% c(max(mes), max(mes)-years(1))), aes(x=as.Date(mes), y=acumulado,label=paste0( prettyNum(round(acumulado,0), big.mark = ".", decimal.mark = ","), " (",month(mes,label = TRUE) ,")")))+
     
@@ -103,12 +98,46 @@ plot_geral = function(df){
  }
 ```
 
+```{r}
+plot_meta_despesa = function(df, meta){
+  
+  atual <- df %>% filter (date == max(date))
+  ggplot(df, aes(y=percentual, color = cores)) +
+  # geom_jitter exclui com "filter (ano != max(ano))" o ano atual para evitar a apresentação de dois pontos para a mesmo exercício.
+  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
+    geom_jitter( data = df %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
+  # plotar o point do ano atual selecionada
+    geom_point(data = df %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
+  
+  # plotar linha vermelha tracejada dividindo resultados bons (azul), ruins (vermelho). O argumento "meta" define a altura da linha.
+    geom_hline(yintercept=meta, colour = "red", linetype = "dashed") +
+  # https://ggplot2.tidyverse.org/reference/geom_smooth.html
+  # inherit.aes =FALSE para evitar duas linhas de tendência.
+  # Caso contrário teríamos uma linha de tendência para a cada factor level (coluna cores).
+  # Uma linha de tendência para os pontos de cor vermelha e outra linha de tendência para os pontos de cor azul  
+    geom_smooth( method = "loess", inherit.aes =FALSE,aes(x=mes, y=percentual), color = "gray" )+
+  # inherit.aes =FALSE para nao herdar aes do geoms anteriores. Caso contrário a linha teria duas cores
+    geom_line(data = df %>% filter (ano == max(ano) ),  inherit.aes =FALSE, aes(x=month(as.Date(date)), y=percentual), size = 0.2)+ 
+  
+   # definir informação dos eixos
+    labs( x = "mês",
+          y = "%")+
+   tema+ 
+  # escala de cor. Os levels são definidos na coluna cores da df.
+    scale_color_manual(breaks = levels(df$cores),
+                        values=levels(df$cores))+
+ 
+  # optei por esconder a legenda (showlegend = FALSE)
+geom_text(data = df %>% filter (date == max(date)), aes(x=mes, y=percentual+8, label = paste0(round(percentual,1),"%")), size = 4, color = "black", face = "bold")+
+  ggtitle ( paste0("Despesa de ",atual$percentual, "% até ", atual$mes, "/", atual$ano))}
+```
+
 ### Despesa com Educação
 
 Despesa com Educação
 
 ```{r}
-educacao <- read_excel("coding/rreo/dados_rreo.xlsx", 
+educacao <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
     sheet = "educacao", col_types = c("date", 
         "numeric", "numeric", "numeric", 
         "numeric"))
@@ -121,51 +150,25 @@ names(educacao)[5] <- "minimo"
 
 educacao <- educacao %>% mutate (percentual = round(100*executado/minimo), mes = month(date, label = TRUE), ano = year(date))
 
-educacao <- educacao %>% mutate(cores = if_else(percentual>100,"red","blue"))
-atual <- educacao %>% filter (date == max(date))
 
-p <- ggplot(educacao, aes(y=percentual, color = cores)) +
-  # geom_jitter exclui a UF selecionada para evitar a apresentação de dois pontos para a mesma UF.
-  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
-    geom_jitter( data = educacao %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
-  # plotar o point da UF selecionada
-    geom_point(data = educacao %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
-  
-  # plotar linha vermelha tracejada dividindo resultados bons (azul), ruins (vermelho). O argumento "corte" define a altura da linha.
-    geom_hline(yintercept=100, colour = "red", linetype = "dashed") +
-  # https://ggplot2.tidyverse.org/reference/geom_smooth.html
-  # inherit.aes =FALSE para evitar duas linhas de tendência.
-  # Caso contrário teríamos uma linha de tendência para a cada factor level (coluna cores).
-  # Uma linha de tendência para os pontos de cor vermelha e outra linha de tendência para os pontos de cor azul  
-    geom_smooth( method = "loess", inherit.aes =FALSE,aes(x=mes, y=percentual), color = "gray" )+
-  # inherit.aes =FALSE para nao herdar aes do geoms anteriores. Caso contrário a linha teria duas cores
-    geom_line(data = educacao %>% filter (ano == max(ano) ),  inherit.aes =FALSE, aes(x=month(as.Date(date)), y=percentual), size = 0.2)+ 
-  
-   # definir informação dos eixos
-    labs( x = "mês",
-          y = "%")+
-   tema+ 
-  # escala de cor. Os levels são definidos na coluna cores da df_limites.
-    scale_color_manual(breaks = levels(educacao$cores),
-                        values=c("red", "blue"))+
- 
-  # optei por esconder a legenda (showlegend = FALSE)
-geom_text(data = educacao %>% filter (date == max(date)), aes(x=mes, y=percentual+8, label = paste0(round(percentual,1),"%")), size = 4, color = "black", face = "bold")+ 
-    theme(plot.title = element_text(size = 12, face = "bold"),
-          axis.text.x =  element_text(size = 10),
-          axis.text.y =  element_text(size = 10),
-          axis.title.x =  element_text(size= 10),
-          axis.title.y =  element_text(size= 10))+
-  ggtitle ( paste0("Despesa de ",atual$percentual, "% até ", atual$mes, "/", atual$ano))
-# (p <- ggplotly(p))%>% layout(showlegend = FALSE)
-ggplotly(p)
+
+educacao <- educacao %>% mutate(cores = if_else(percentual>100,"blue","red"))
+
+educacao <-educacao %>%
+  mutate(cores = fct_reorder(cores, desc(cores)))
+
+# atual <- educacao %>% filter (date == max(date))
+
+p <- plot_meta_despesa(educacao,100)
+ggplotly(p)%>%
+  config(displayModeBar = FALSE)
 
 ```
 
 ### Despesa com Saúde
 
 ```{r}
-saude <- read_excel("coding/rreo/dados_rreo.xlsx", 
+saude <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
     sheet = "saude", col_types = c("date", 
         "numeric", "numeric", "numeric", "numeric", 
         "numeric"))
@@ -178,47 +181,213 @@ names(saude)[5] <- "minimo"
 
 saude <- saude %>% mutate (percentual = round(100*executado/minimo,0), mes = month(date, label = TRUE), ano = year(date))
 
-saude <- saude %>% mutate(cores = if_else(percentual>100,"red","blue"))
-atual <- saude %>% filter (date == max(date))
+saude <- saude %>% mutate(cores = if_else(percentual>100,"blue","red"))
 
-p <- ggplot(saude, aes(y=percentual, color = cores)) +
-  # geom_jitter exclui a UF selecionada para evitar a apresentação de dois pontos para a mesma UF.
-  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
-    geom_jitter( data = saude %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
-  # plotar o point da UF selecionada
-    geom_point(data = saude %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
-  
-  # plotar linha vermelha tracejada dividindo resultados bons (azul), ruins (vermelho). O argumento "corte" define a altura da linha.
-    geom_hline(yintercept=100, colour = "red", linetype = "dashed") +
-  # https://ggplot2.tidyverse.org/reference/geom_smooth.html
-  # inherit.aes =FALSE para evitar duas linhas de tendência.
-  # Caso contrário teríamos uma linha de tendência para a cada factor level (coluna cores).
-  # Uma linha de tendência para os pontos de cor vermelha e outra linha de tendência para os pontos de cor azul  
-    geom_smooth( method = "loess", inherit.aes =FALSE,aes(x=mes, y=percentual), color = "gray" )+
-  # inherit.aes =FALSE para nao herdar aes do geoms anteriores. Caso contrário a linha teria duas cores
-    geom_line(data = saude %>% filter (ano == max(ano) ),  inherit.aes =FALSE, aes(x=month(as.Date(date)), y=percentual), size = 0.2)+ 
-  
-   # definir informação dos eixos
-    labs( x = "mês",
-          y = "%")+
-   tema+ 
-  # escala de cor. Os levels são definidos na coluna cores da df_limites.
-    scale_color_manual(breaks = levels(saude$cores),
-                        values=c("red", "blue"))+
- 
-  # optei por esconder a legenda (showlegend = FALSE)
-geom_text(data = saude %>% filter (date == max(date)), aes(x=mes, y=percentual+8, label = paste0(round(percentual,1),"%")), size = 4, color = "black", face = "bold")+ 
-    theme(plot.title = element_text(size = 12, face = "bold"),
-          axis.text.x =  element_text(size = 10),
-          axis.text.y =  element_text(size = 10),
-          axis.title.x =  element_text(size= 10),
-          axis.title.y =  element_text(size= 10))+
-  ggtitle ( paste0("Despesa de ",atual$percentual, "% até ", atual$mes, "/", atual$ano))
-# (p <- ggplotly(p))%>% layout(showlegend = FALSE)
-ggplotly(p)
+
+
+saude<-saude %>%
+  mutate(cores = fct_reorder(cores, desc(cores)))
+
+
+p <- plot_meta_despesa(saude,100)
+
+ggplotly(p)%>%
+  config(displayModeBar = FALSE)
+# https://plotly-r.com/control-modebar.html
+
 ```
 
 ### Receita Corrente Líquida
+
+```{r}
+rcl_anterior <- read_excel("relatorios_fiscais/rreo/auto_Anexo 03 - RCL.xlsm", 
+    sheet = "Elaboracao", range = "a4:n26")
+
+datatable(rcl_anterior)%>% formatCurrency(colnames(select_if(rcl_anterior,is.numeric)),
+  currency = "R$ ",
+  interval = 3,
+  mark = ".",
+  digits = 2,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL)
+```
+
+```{r}
+# excluir (não selecionar) a coluna vazia ("...2")
+rcl_anterior <- rcl_anterior %>% select(-...2)
+
+# alterar o nome da coluna 1 (de "MÊS DE REFERÊNCIA" PARA "item")
+colnames(rcl_anterior)[1] <- "item"
+
+rcl_anterior_longer <- pivot_longer(rcl_anterior,!item, names_to = "mes_nome", values_to = "valor" )
+
+
+# criar coluna "mes_data" com valor em data
+
+rcl_anterior_longer <- rcl_anterior_longer %>%
+  mutate(mes_data =parse_date_time(rcl_anterior_longer$mes_nome,"my"))
+
+
+datatable(head(rcl_anterior_longer))%>% formatCurrency("valor",
+  currency = "R$ ",
+  interval = 3,
+  mark = ".",
+  digits = 2,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL) %>% 
+  formatDate(
+    columns = "mes_data", 
+    method =  "toLocaleDateString", 
+    params = list(
+      'pt-BR', 
+      list(
+        year = 'numeric', 
+        month = 'long')
+      )
+    )
+```
+
+```{r}
+#| warning: false
+
+tg_rcl <- read_excel("relatorios_fiscais/rreo/RREO_R_RCL.xlsx", 
+    skip = 7)
+
+
+colnames(tg_rcl)[1] <- "item_tg"
+colnames(tg_rcl)[2] <- "mes_nome"
+colnames(tg_rcl)[3] <- "valor"
+
+
+data_rcl <- tail(tg_rcl$item_tg, 1)
+
+# retirar a linha com a data da atualização do TG
+tg_rcl <- head(tg_rcl, -1)
+
+
+nomes_itens <- read_excel("relatorios_fiscais/rreo/auto_Anexo 03 - RCL.xlsm", 
+    sheet = "anexo_tg")
+
+tg_rcl <- left_join(tg_rcl,nomes_itens)
+
+tg_rcl <- tg_rcl %>% select(item, mes_nome,valor)
+
+tg_rcl <- tg_rcl %>% 
+  mutate(mes_data =parse_date_time(tg_rcl$mes_nome,"ym"))
+
+rcl <- rbind(tg_rcl, rcl_anterior_longer )
+
+rcl <- rcl %>% mutate(mes_anexo =strftime(rcl$mes_data %m+% months(1) ,'%b-%y') )
+
+
+
+rcl <- rcl %>% filter(mes_data >  max(mes_data)%m-% months(12) )
+
+periodo <- paste(str_to_upper( strftime(min(rcl$mes_data) %m+% months(1) ,'%b-%y')),
+                 " ATÉ ", str_to_upper( strftime(max(rcl$mes_data) %m+% months(1) ,'%b-%y') ))
+
+
+rcl <-rcl%>% arrange(mes_data) %>% select(item, mes_anexo, valor)  %>% pivot_wider(names_from = mes_anexo , values_from = valor) 
+
+rcl <- rcl  %>%
+  adorn_totals( where = "col", fill = "-", na.rm = TRUE, name = "12 meses")
+
+
+datatable(rcl)%>% formatCurrency(is.numeric(rcl),
+  currency = "R$ ",
+  interval = 3,
+  mark = ".",
+  digits = 2,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL)
+```
+
+#### Gráfico RCL
+
+```{r}
+
+#| warning: false
+library("readxl")
+sheet_names <- excel_sheets("relatorios_fiscais/rreo/rcl_serie_historica.xlsm")           # Get sheet names
+sheet_names                                            # Print sheet names
+
+planilhas_serie_rcl <- lapply(sheet_names, function(x) {          # Read all sheets to list
+  as.data.frame(read_excel("relatorios_fiscais/rreo/rcl_serie_historica.xlsm", sheet = x, skip = 11) %>% filter(startsWith(Item, "RECEITA CORRENTE L")) %>% mutate(Item = "rcl") %>% select(c(1:13))) } )
+
+
+
+serie_rcl <-  Reduce(full_join,planilhas_serie_rcl) 
+
+
+
+
+
+serie_rcl <- pivot_longer(serie_rcl, !Item, names_to = "mes_nome", values_to = "valor" )
+
+
+serie_rcl <- serie_rcl %>% mutate (data_completa = paste0("01/",mes_nome))
+
+serie_rcl <- serie_rcl%>%
+  mutate(mes =parse_date_time(serie_rcl$data_completa,"dmy"))
+
+serie_rcl <- serie_rcl %>% arrange(as.Date(mes))
+
+serie_rcl$mes <-  ceiling_date(serie_rcl$mes,"month")+ months(1)-days(1)
+
+# https://statisticsglobe.com/get-end-month-for-certain-date-r
+
+serie_rcl <- serie_rcl %>% mutate(acumulado = round(roll_sum(valor/1000000,12, fill=NA, align="right"),1))
+
+
+serie_rcl <- serie_rcl%>% mutate(mes_anexo = strftime(serie_rcl$mes %m+% months(1) ,'%b-%y') )
+
+serie_rcl <- serie_rcl%>% filter(acumulado != 0)
+
+
+
+serie_rcl <- serie_rcl %>% mutate(mes_anexo = mes_anexo %>% fct_relevel(serie_rcl$data_completa))
+
+serie_rcl$mes_anexo <- as.factor(serie_rcl$mes_anexo)
+
+serie_rcl <- serie_rcl %>% mutate (cores = ifelse(acumulado>0, "blue", "red"))
+
+
+
+datatable(serie_rcl  %>% select(mes,acumulado))%>% formatCurrency("acumulado",
+  currency = "R$ ",
+  interval = 3,
+  mark = ".",
+  digits = 2,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL) %>% 
+  formatDate(
+    columns = "mes", 
+    method =  "toLocaleDateString", 
+    params = list(
+      'pt-BR', 
+      list(
+        year = 'numeric', 
+        month = 'long')
+      )
+    )
+
+# https://stackoverflow.com/questions/44303835/format-date-in-datatable-output
+
+p <- plot_rolling(serie_rcl)+
+  scale_x_date(date_labels = "%Y")
+
+
+ggplotly(p)
+
+```
 
 ### Resultado Previdenciário
 
@@ -293,6 +462,100 @@ ggplotly(p)
 ### Restos a Pagar
 
 ## RGF
+
+```{r}
+# 
+# Criei a função json2df(). A função baixa o arquivo JSON e armazenar os dados em uma data frame.
+# 
+# A função foi inspirada no código do Marcos F Silva https://www.rpubs.com/marcosfs2006/api_siconfi.
+
+json2df = function(a){ 
+
+# "a" é a URL
+f_api <-   GET(a)
+
+f_txt <- content(f_api, as="text", encoding="UTF-8")
+
+f_json <- fromJSON(f_txt, flatten = FALSE)
+Sys.sleep(1)
+
+f_df <-as.data.frame(f_json[[1]]) 
+
+}
+
+
+# função para juntar data frames
+
+bind_json2df = function(a){ map(a,json2df)}
+
+
+
+# A função relatorios() acessa as urls, baixa os arquivos JSON, transforma os arquivos individuais em data frames, agrupa as data frames em uma única data frame. 
+
+# funcao para gerar df com os dados dos relatórios
+relatorios = function(a){map_dfr(bind_json2df(a), bind_rows)}
+```
+
+```{r}
+
+# https://stackoverflow.com/questions/30472625/r-shiny-how-to-get-current-year-with-sys-date
+
+
+
+  
+endereco<- c()
+
+# variável para capturar todos os períodos desde 2015 (primeiro ano com dados disponíveis) até ano atual
+periodo <- (2015:2021)  
+
+# fazer loop por todos os períodos para obter a dataframe com todos os relatórios entregues
+for (i in periodo){
+
+   
+files_json <- 
+paste0("https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rgf?an_exercicio=",toString(i),"&in_periodicidade=Q&nr_periodo=3&co_tipo_demonstrativo=RGF&co_esfera=U&co_poder=E&id_ente=1")
+endereco<- c(endereco, files_json)
+}
+
+
+
+endereco
+
+```
+
+relatorios(endereco)
+
+```{r}
+
+rgf <- ( relatorios (endereco ) )
+
+head(rgf)
+
+rgf_uniao <- rgf %>% filter(coluna == "% SOBRE A RCL", rotulo %!in% c("Amapá","Distrito Federal", "Roraima"), cod_conta%!in%  c("AmapaMember", "DistritoFederalMember","RoraimaMember"), rotulo %!in% c("DESPESAS DA UNIÃO COM O AMAPÁ","DESPESAS DA UNIÃO COM RORAIMA", "DESPESAS DA UNIÃO COM O DISTRITO FEDERAL"), anexo == "RGF-Anexo 06") 
+
+```
+
+```{r}
+  divida <- rgf %>% filter(startsWith(coluna,"Até"), cod_conta =="DividaConsolidadaLiquida")
+  
+  
+datatable(divida %>% select (exercicio, coluna, valor))
+  
+divida  <- divida %>% mutate (mes = as.Date(case_when(
+  coluna == "Até o 1º Quadrimestre" ~ paste0(exercicio,"-04-30"),
+  coluna == "Até o 2º Quadrimestre" ~ paste0(exercicio,"-09-30"),
+  coluna == "Até o 3º Quadrimestre" ~ paste0(exercicio,"-12-31")
+)))
+  
+divida <- divida %>% mutate (valor= round(valor/1000000000000,1))
+
+p <- ggplot(data=divida, aes(x=mes, y=valor)) +
+  geom_line()
+
+
+
+ggplotly(p)
+```
 
 ### Despesa com pessoal
 
