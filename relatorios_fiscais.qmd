@@ -9,17 +9,12 @@ editor: visual
 
 ### Pacotes e Funções
 
-```{r}
+```{r opcoes gerais}
 # https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
 knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE)
 ```
 
-```{r}
-# https://www.r-bloggers.com/the-notin-operator/
-'%!in%' <- Negate('%in%')
-```
-
-```{r}
+```{r biliotecas}
 library(flexdashboard)
 library(shiny)
 library(tidyverse)
@@ -38,9 +33,15 @@ library(jsonlite)
 library(vroom)
 library(httr)
 library(purrr)
+library(vembedr)
 ```
 
-```{r}
+```{r operador_negacao}
+# https://www.r-bloggers.com/the-notin-operator/
+'%!in%' <- Negate('%in%')
+```
+
+```{r tema_para_plots}
 tema <- theme_classic() + theme(plot.title=element_text(size=12,hjust = 0.5 ),
           # axis.text = element_text(size = 20),
           axis.text.x = element_text(size=10),
@@ -53,7 +54,7 @@ tema <- theme_classic() + theme(plot.title=element_text(size=12,hjust = 0.5 ),
 # https://themockup.blog/posts/2020-12-26-creating-and-using-custom-ggplot2-themes/
 ```
 
-```{r}
+```{r plot_rolling}
 plot_rolling = function(df){
   ggplot(df ) + 
   
@@ -65,16 +66,15 @@ plot_rolling = function(df){
   
   ggtitle(paste0("Posição: ",(month(max(as.Date(df$mes)), label=TRUE, abbr = FALSE)), "/",(year(max(as.Date(df$mes)))) ))+
     theme_classic() +
-    ylab("R$ bilhões") +
+    ylab("R$") +
     xlab("") +
     tema+
-      scale_x_date(limits = c(as.Date (min(df$mes)),as.Date(max(df$mes))) ,breaks=date_breaks("1 year"),
-      labels=date_format( "%Y")) +
+  scale_x_date(date_labels = "%Y") +
     scale_fill_manual(values = c(df$cores))
  }
 ```
 
-```{r}
+```{r plot_geral}
 plot_geral = function(df){
   ggplot(df,aes(x = (as.Date(mes)),y = acumulado) ) + 
   
@@ -91,14 +91,14 @@ plot_geral = function(df){
     
   ggtitle(paste0("Posição: ",(month(max(as.Date(df$mes)), label=TRUE, abbr = FALSE)), "/",(year(max(as.Date(df$mes)))) ))+
     tema +
-    ylab("R$ bilhões") +
+    ylab("R$") +
     xlab("") +
     scale_x_date(limits = c(as.Date (min(df$mes)),as.Date(max(df$mes))) ,breaks=date_breaks("1 year"),
       labels=date_format( "%Y"))
  }
 ```
 
-```{r}
+```{r plot_meta_despesa}
 plot_meta_despesa = function(df, meta){
   
   atual <- df %>% filter (date == max(date))
@@ -136,7 +136,7 @@ geom_text(data = df %>% filter (date == max(date)), aes(x=mes, y=percentual+8, l
 
 Despesa com Educação
 
-```{r}
+```{r df_despesa_com_educacao}
 educacao <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
     sheet = "educacao", col_types = c("date", 
         "numeric", "numeric", "numeric", 
@@ -160,14 +160,13 @@ educacao <-educacao %>%
 # atual <- educacao %>% filter (date == max(date))
 
 p <- plot_meta_despesa(educacao,100)
-ggplotly(p)%>%
-  config(displayModeBar = FALSE)
+ggplotly(p)
 
 ```
 
 ### Despesa com Saúde
 
-```{r}
+```{r df_despesa_com_saude}
 saude <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
     sheet = "saude", col_types = c("date", 
         "numeric", "numeric", "numeric", "numeric", 
@@ -191,15 +190,13 @@ saude<-saude %>%
 
 p <- plot_meta_despesa(saude,100)
 
-ggplotly(p)%>%
-  config(displayModeBar = FALSE)
-# https://plotly-r.com/control-modebar.html
+ggplotly(p)
 
 ```
 
 ### Receita Corrente Líquida
 
-```{r}
+```{r rcl_exercicio_anterior}
 rcl_anterior <- read_excel("relatorios_fiscais/rreo/auto_Anexo 03 - RCL.xlsm", 
     sheet = "Elaboracao", range = "a4:n26")
 
@@ -214,7 +211,7 @@ datatable(rcl_anterior)%>% formatCurrency(colnames(select_if(rcl_anterior,is.num
   rows = NULL)
 ```
 
-```{r}
+```{r pivotar_rcl_execicio_anterior}
 # excluir (não selecionar) a coluna vazia ("...2")
 rcl_anterior <- rcl_anterior %>% select(-...2)
 
@@ -251,7 +248,7 @@ datatable(head(rcl_anterior_longer))%>% formatCurrency("valor",
     )
 ```
 
-```{r}
+```{r dados_rcl_tesouro_gerencial}
 #| warning: false
 
 tg_rcl <- read_excel("relatorios_fiscais/rreo/RREO_R_RCL.xlsx", 
@@ -310,7 +307,7 @@ datatable(rcl)%>% formatCurrency(is.numeric(rcl),
 
 #### Gráfico RCL
 
-```{r}
+```{r plot_rcl}
 
 #| warning: false
 library("readxl")
@@ -359,6 +356,18 @@ serie_rcl <- serie_rcl %>% mutate (cores = ifelse(acumulado>0, "blue", "red"))
 
 
 
+
+
+
+
+p <- plot_rolling(serie_rcl)
+
+
+ggplotly(p)
+
+```
+
+```{r dt_rcl}
 datatable(serie_rcl  %>% select(mes,acumulado))%>% formatCurrency("acumulado",
   currency = "R$ ",
   interval = 3,
@@ -380,49 +389,171 @@ datatable(serie_rcl  %>% select(mes,acumulado))%>% formatCurrency("acumulado",
     )
 
 # https://stackoverflow.com/questions/44303835/format-date-in-datatable-output
-
-p <- plot_rolling(serie_rcl)+
-  scale_x_date(date_labels = "%Y")
-
-
-ggplotly(p)
-
 ```
 
 ### Resultado Previdenciário
 
+```{r}
+previ <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
+    sheet = "previdencia") %>% clean_names()
+
+names(previ)[1] <- "mes"
+
+
+
+previ <- previ %>% mutate (receita =rowSums( previ[,startsWith(names(previ),"movimento_r")]), despesa  =rowSums( previ[,startsWith(names(previ),"movimento_d")]), resultado = receita - despesa)
+
+# https://itsalocke.com/blog/understanding-rolling-calculations-in-r/
+previ <- previ %>% mutate(acumulado = roll_sum(resultado,12, fill=NA, align="right")/1000000000)
+
+previ_clean <- previ  %>% select("mes",starts_with("Movimento"), "resultado")
+
+
+# previ_clean$mes <-  ceiling_date(previ_clean$mes,"month")+ months(1)-days(1)
+
+datatable(previ_clean)%>% formatCurrency(2:10,
+  currency = "R$ ",
+  interval = 3,
+  mark = ".",
+  digits = 2,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL) %>% 
+  formatDate(
+    columns = "mes", 
+    method =  "toLocaleDateString", 
+    params = list(
+      'pt-BR', 
+      list(
+        year = 'numeric', 
+        month = 'long')
+      )
+    )
+# 
+# previ_plot <- previ_clean %>% select(!acumulado) %>% pivot_longer(!mes,names_to = "item", values_to = "saldo_acumulado") %>% mutate(saldo_acumulado = if_else(startsWith(item,"Despesas"), saldo_acumulado*-1,saldo_acumulado))
+
+previ_plot <- previ_clean  %>% pivot_longer(!mes,names_to = "item", values_to = "saldo_acumulado") %>% mutate(saldo_acumulado = if_else(startsWith(item,"movimento _despesa"), saldo_acumulado*-1,saldo_acumulado))
+
+
+# ggplot(previ_plot %>% filter(item != "resultado") )+geom_area(  aes(x= mes, y = saldo_acumulado, fill= item))+geom_line(previ_plot %>% filter(item == "resultado"), aes(x= mes, y = saldo_acumulado))
+
+p <- ggplot(NULL,aes(x= mes, y = saldo_acumulado) )+
+  geom_area(data = previ_plot %>% filter(item != "resultado"), aes(fill = item))+
+  geom_line(data =previ_plot %>% filter(item == "resultado"), color= "red" )
+p
+# https://statisticsglobe.com/combine-two-ggplot2-plots-from-different-data-frames-in-r
+```
+
+```{r}
+previ <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
+    sheet = "previdencia") %>% clean_names()
+
+
+
+
+
+regime <-function(regime){ previ %>% select("mes_de_referencia",starts_with(paste0("movimento_receitas_",regime)),starts_with(paste0("movimento_despesas_",regime)))%>% rename(
+    mes = mes_de_referencia,
+    receita = paste0("movimento_receitas_",regime),
+    despesa  = paste0("movimento_despesas_",regime)
+) %>% mutate(resultado = receita - despesa)  %>%
+    mutate(receita_acumulada = roll_sum(receita,12, fill=NA, align="right")/1000000000) %>%
+    mutate(despesa_acumulada = roll_sum(despesa,12, fill=NA, align="right")/1000000000) %>%
+    mutate(resultado_acumulado = roll_sum(resultado,12, fill=NA, align="right")/1000000000)
+  }
+
+
+regime_pivotado <- function(df){
+ df %>% select(mes,receita_acumulada,despesa_acumulada,resultado_acumulado) %>% pivot_longer(!mes,names_to = "item", values_to = "saldo_acumulado") %>% mutate(saldo_acumulado = if_else(startsWith(item,"despesa"), saldo_acumulado*-1,saldo_acumulado))
+}
+
+rgps <- regime("rgps")
+rgps_pivotado <- regime_pivotado(rgps)
+
+fcdf <- regime("fcdf")
+fcdf_pivotato <- regime_pivotado(fcdf)
+
+rpps <- regime("rpps_civis")
+rpps_pivotato <- regime_pivotado(rpps)
+
+p <- ggplot(NULL,aes(x= mes, y = saldo_acumulado) )+
+  geom_area(data = rgps_pivotado %>% filter(item != "resultado_acumulado"), aes(fill = item))+
+  geom_line(data =rgps_pivotado %>% filter(item == "resultado_acumulado"), color= "red" )
+ggplotly(p) 
+
+regime_plot(fcdf_pivotato)
+regime_plot(rpps_pivotato)
+
+regime_plot <- function(df){p <- ggplot(NULL,aes(x= mes, y = saldo_acumulado) )+
+  geom_area(data = df %>% filter(item != "resultado_acumulado"), aes(fill = item))+
+  geom_line(data =df %>% filter(item == "resultado_acumulado"), color= "red" )
+ggplotly(p) }
+```
+
++------+------+------+
 | Col1 | Col2 | Col3 |
-|------|------|------|
++======+======+======+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 |      |      |      |
++------+------+------+
 
 ### Disponibilidade por Fonte de Recurso
 
@@ -464,6 +595,10 @@ ggplotly(p)
 ## RGF
 
 ```{r}
+embed_youtube("wj4JdehMkZE")
+```
+
+```{r rgf_siconfi}
 # 
 # Criei a função json2df(). A função baixa o arquivo JSON e armazenar os dados em uma data frame.
 # 
@@ -523,8 +658,6 @@ endereco
 
 ```
 
-relatorios(endereco)
-
 ```{r}
 
 rgf <- ( relatorios (endereco ) )
@@ -536,21 +669,39 @@ rgf_uniao <- rgf %>% filter(coluna == "% SOBRE A RCL", rotulo %!in% c("Amapá","
 ```
 
 ```{r}
-  divida <- rgf %>% filter(startsWith(coluna,"Até"), cod_conta =="DividaConsolidadaLiquida")
-  
-  
-datatable(divida %>% select (exercicio, coluna, valor))
-  
-divida  <- divida %>% mutate (mes = as.Date(case_when(
+
+
+rgf <- rgf %>% mutate (ano = as.Date(case_when(
   coluna == "Até o 1º Quadrimestre" ~ paste0(exercicio,"-04-30"),
   coluna == "Até o 2º Quadrimestre" ~ paste0(exercicio,"-09-30"),
   coluna == "Até o 3º Quadrimestre" ~ paste0(exercicio,"-12-31")
 )))
+
+
+divida <- rgf %>% filter(startsWith(coluna,"Até"), cod_conta =="DividaConsolidadaLiquida")
+  
+  
+datatable(divida %>% select (exercicio, coluna, valor))
+  
+divida  <- divida 
   
 divida <- divida %>% mutate (valor= round(valor/1000000000000,1))
 
-p <- ggplot(data=divida, aes(x=mes, y=valor)) +
-  geom_line()
+p <- ggplot(data=divida, aes(x=ano, y=valor)) +
+  geom_line()+tema
+
+
+
+ggplotly(p)
+```
+
+```{r}
+garantias <- rgf %>% filter(startsWith(coluna,"Até"), cod_conta %in% c("GarantiasConcedidas","TotalGarantiasConcedidas"))
+
+garantias <- garantias %>% mutate (valor= round(valor/1000000000,1))
+
+p <- ggplot(data=garantias, aes(x=ano, y=valor)) +
+  geom_line()+tema
 
 
 

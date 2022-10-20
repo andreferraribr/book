@@ -34,6 +34,8 @@ datatable( servidores %>%  group_by(regime, competencia_mes) %>% count(regime) %
 ```
 
 ```{r}
+
+
 datatable( servidores %>%  group_by(setor , competencia_mes) %>% count(setor) %>% pivot_wider(names_from = competencia_mes, values_from = n))
 ```
 
