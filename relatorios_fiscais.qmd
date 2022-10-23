@@ -44,11 +44,10 @@ library(vembedr)
 ```
 
 ```{r tema_para_plots}
-tema <- theme_classic() + theme(plot.title=element_text(size=8,hjust = 0 ),
+tema <- theme_classic() + theme(plot.title=element_text(size=12,hjust = 0 ),
          
-          axis.text.x = element_text(size=6),
-          axis.title.y=element_text(size=6),
-          axis.text.y=element_text(size=6),
+          axis.text = element_text(size=10),
+          axis.title=element_text(size=10),
           axis.ticks.y=element_blank(),
           legend.position = "none")
 # https://rpubs.com/mclaire19/ggplot2-custom-themes
@@ -102,7 +101,7 @@ plot_meta_despesa = function(df, meta){
     geom_line(data = df %>% filter (ano == max(ano) ),  inherit.aes =FALSE, aes(x=month(as.Date(date)), y=percentual), size = 0.2)+
 
    # definir informação dos eixos
-    labs( x = "data",
+    labs( x = "",
           y = "%")+
    tema+
   # escala de cor. Os levels são definidos na coluna cores da df.
@@ -135,7 +134,7 @@ educacao <- educacao %>% mutate (percentual = round(100*executado/minimo), mes =
 
 
 
-educacao <- educacao %>% mutate(cores = if_else(percentual>100,"blue","red"))
+educacao <- educacao %>% mutate(cores = if_else(percentual<100,"red","blue"))
 
 educacao <-educacao %>%
   mutate(cores = fct_reorder(cores, desc(cores)))
@@ -164,7 +163,7 @@ names(saude)[5] <- "minimo"
 
 saude <- saude %>% mutate (percentual = round(100*executado/minimo,0), mes = month(date, label = TRUE), ano = year(date))
 
-saude <- saude %>% mutate(cores = if_else(percentual>100,"blue","red"))
+saude <- saude %>% mutate(cores = if_else(percentual<100,"red","blue"))
 
 
 
@@ -192,7 +191,8 @@ datatable(rcl_anterior)%>% formatCurrency(colnames(select_if(rcl_anterior,is.num
   dec.mark = ",",
   before = TRUE,
   zero.print = NULL,
-  rows = NULL)
+  rows = NULL)%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
 ```
 
 ```{r pivotar_rcl_execicio_anterior}
@@ -229,7 +229,8 @@ datatable(head(rcl_anterior_longer))%>% formatCurrency("valor",
         year = 'numeric', 
         month = 'long')
       )
-    )
+    )%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
 ```
 
 ```{r dados_rcl_tesouro_gerencial}
@@ -286,7 +287,8 @@ datatable(rcl)%>% formatCurrency(is.numeric(rcl),
   dec.mark = ",",
   before = TRUE,
   zero.print = NULL,
-  rows = NULL)
+  rows = NULL)%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
 ```
 
 #### Gráfico RCL
@@ -384,7 +386,8 @@ datatable(serie_rcl  %>% select(mes,acumulado))%>% formatCurrency("acumulado",
         year = 'numeric', 
         month = 'long')
       )
-    )
+    )%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
 
 # https://stackoverflow.com/questions/44303835/format-date-in-datatable-output
 ```
@@ -444,69 +447,38 @@ regime_plot(rpps_pivotato)
 
 ```
 
-+------+------+------+
 | Col1 | Col2 | Col3 |
-+======+======+======+
+|------|------|------|
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 |      |      |      |
-+------+------+------+
 
 ### Disponibilidade por Fonte de Recurso
 
@@ -634,11 +606,11 @@ rgf <- rgf %>% mutate (ano = as.Date(case_when(
 divida <- rgf %>% filter(startsWith(coluna,"Até"), cod_conta =="DividaConsolidadaLiquida")
   
   
-datatable(divida %>% select (exercicio, coluna, valor))
-  
-divida  <- divida 
-  
+
 divida <- divida %>% mutate (valor= round(valor/1000000000000,1))
+
+datatable(divida) %>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
 
 p <- ggplot(data=divida, aes(x=ano, y=valor)) +
   geom_line()+tema

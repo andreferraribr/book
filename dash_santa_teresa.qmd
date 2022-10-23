@@ -27,33 +27,127 @@ library(readr)
 ```
 
 ```{r}
+# https://www.r-bloggers.com/the-notin-operator/
+'%!in%' <- Negate('%in%')
+```
+
+```{r pessoal_regime}
 servidores <- read_csv("servidores.csv", 
-    col_types = cols(admissao_data = col_date(format = "%d/%m/%Y")))
+    col_types = cols(admissao_data = col_date(format = "%d/%m/%Y"))) 
+servidores <- servidores %>% select(!...1)
 
-datatable( servidores %>%  group_by(regime, competencia_mes) %>% count(regime) %>% pivot_wider(names_from = competencia_mes, values_from = n))
+# servidores <- rbind(servidores,servidores_2022_09) 
+
+# servidores <- servidores %>% mutate(competencia_mes =
+#       case_when(competencia_mes %in% c("10","11","12")~ competencia_mes,
+#       TRUE ~ paste0("0",competencia_mes)))
+
+
+ servidores <- servidores %>% mutate(competencia_mes = paste0("0",competencia_mes))
+
+servidores <- servidores %>% mutate(data =parse_date(  paste0(competencia_ano,"-",competencia_mes,"-01")))
+
+servidores <- servidores %>% mutate(mes_ano =strftime(data  ,'%b-%y') )%>%
+  mutate(mes_ano = fct_reorder(mes_ano, data))
+
+
+datatable( servidores %>%  group_by(regime, mes_ano) %>% count(regime) %>% pivot_wider(names_from = mes_ano, values_from = n)) 
 ```
 
-```{r}
+```{r pessoal_setor}
 
 
-datatable( servidores %>%  group_by(setor , competencia_mes) %>% count(setor) %>% pivot_wider(names_from = competencia_mes, values_from = n))
+datatable( servidores %>%  group_by(setor , mes_ano) %>% count(setor) %>% pivot_wider(names_from = mes_ano, values_from = n))
 ```
 
-```{r}
-datatable( servidores %>%  group_by(cargo , competencia_mes) %>% count(cargo) %>% pivot_wider(names_from = competencia_mes, values_from = n))
+```{r pessoal_cargo}
+datatable( servidores %>%  group_by(cargo , mes_ano) %>% count(cargo) %>% pivot_wider(names_from = mes_ano, values_from = n))
 
 ```
 
-```{r}
+```{r pessoal_movimentacao}
+datatable(servidores %>% filter(admissao_data >= max(data)) %>%  count())
+
+datatable(servidores %>% filter(demissao_data >= max(data)) %>%  count())
+
+
+datatable(servidores %>% filter(data == max(data)) %>% summarise(remuneracao_max = max(total_rendimentos), remuneracao_min = min(total_rendimentos), remuneracao_media = mean(total_rendimentos))  )
+
+p <- ggplot(servidores %>% filter(data == max(data)), aes(total_rendimentos, fill = formacao) )+geom_histogram()+facet_wrap(~regime)
+
+ggplotly(p)
+
+
+p <- ggplot(servidores %>% filter(data == max(data)), aes(total_rendimentos, fill = regime) )+geom_histogram()+facet_wrap(~formacao)
+
+ggplotly(p)
+
+
+servidores <- servidores %>% mutate(formacao = case_when( 
+ instrucao %in% c("POS GRADUADO","POS GRADUACAO") ~ "pós graduação",
+  instrucao %in% c("CURSO TECNICO","SEGUNDO GRAU (COLEGIAL) COMPLETO.","SUPERIOR INCOMPLETO.") ~ "ensino medio",
+  instrucao == "SUPERIOR COMPLETO" ~ "ensino superior",
+ 
+  
+  TRUE ~ "ensino fundamental"
+  
+  
+))
+
+p <- ggplot(servidores %>% filter(data == max(data)), aes(total_rendimentos, fill = setor_sigla) )+geom_histogram()
+
+ggplotly(p)
+
+
+p <- ggplot(servidores %>% filter(data == max(data)), aes(total_rendimentos, fill = regime) )+geom_histogram()
+
+ggplotly(p)
+
+
+
+
+datatable(servidores %>% filter(data == max(data)) %>% group_by(regime) %>% count() )
+
+p <- ggplot(servidores %>% filter(data == max(data)) %>% group_by(instrucao) %>% count(), aes(n, fill = regime) )+geom_histogram()
+ggplotly(p)
+
+
+
+
+p <- ggplot(servidores %>% filter(data == max(data), regime %!in% c ("Pensionista", "Inativo")), aes(formacao, fill = regime) )+geom_bar()+ coord_flip()
+
+ggplotly(p)
+
+
+p <- ggplot(servidores %>% filter(data == max(data), regime %!in% c ("Pensionista", "Inativo")), aes(formacao) )+geom_bar()+ coord_flip()
+
+ggplotly(p)
+
+
+datatable(servidores %>% filter(data == max(data)) %>% group_by( formacao, instrucao) %>% count()) 
+```
+
+```{r orcamento_receita}
 orcamento_receita <- read_csv("orcamento_receita.csv")
 
 orcamento_receita <- orcamento_receita %>% separate(rubrica,into = c("rubrica_cod", "rubrica_nome")," - ")
 
 orcamento_receita <- orcamento_receita %>% separate(origem,into = c("origem_cod", "origem_nome")," - ")
 
-datatable(orcamento_receita %>% group_by(origem_cod, ano) %>% summarise(valor = sum(valor)) %>% pivot_wider(names_from = ano, values_from = valor))
+# datatable(orcamento_receita %>% group_by(origem_cod, ano) %>% summarise(valor = sum(valor)) %>% pivot_wider(names_from = ano, values_from = valor))
 
 orcamento_origem <- orcamento_receita %>% group_by(origem_cod, ano) %>% summarise(valor = sum(valor)) %>% pivot_wider(names_from = ano, values_from = valor)
+
+datatable(orcamento_origem)%>% formatCurrency(as.character( c(2007:2022)),
+  currency = "",
+  interval = 3,
+  mark = ".",
+  digits = 0,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL)%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
 
 nomes_origem <- orcamento_receita %>% filter(ano==2022)
 
@@ -62,7 +156,7 @@ nomes_origem <- unique(nomes_origem %>% select(origem_cod, origem_nome))
 orcamento_origem <- left_join(orcamento_origem, nomes_origem %>% select(origem_cod, origem_nome)) %>% relocate(origem_nome, .before = origem_cod)
 ```
 
-```{r}
+```{r receitas}
 receitas <- read_csv("receitas.csv")
 
 receitas <- receitas %>% separate(rubrica,into = c("rubrica_cod", "rubrica_nome")," - ")
@@ -84,7 +178,7 @@ receita_origem <- left_join(receita_origem, nomes_origem %>% select(origem_cod, 
 datatable(receita_origem)
 ```
 
-```{r}
+```{r licitacoes}
 licitacoes <- read_csv("licitacoes.csv")
 
 licitacoes$valor <- str_remove_all(licitacoes$valor,"R")
@@ -101,12 +195,35 @@ datatable(licitacoes %>% group_by(ano) %>% summarise(valor = sum(valor, na.rm = 
 
 ```
 
-```{r}
+```{r pagamentos}
 pagamentos <- read_csv("pagamentos.csv")
 datatable(pagamentos %>% group_by(funcao) %>% summarise(valor = sum(valor, na.rm = FALSE)))
 
 datatable(pagamentos %>% group_by(entidade_nome) %>% summarise(valor = sum(valor, na.rm = FALSE)))
 
 datatable(pagamentos %>% group_by(unidade) %>% summarise(valor = sum(valor, na.rm = FALSE)))
+
+datatable(pagamentos %>% filter(grupo != c("31000000000 - PESSOAL E ENCARGOS SOCIAIS"), elemento != "33904700000 - OBRIGAÇÕES TRIBUTARIAS E CONTRIBUTIVAS", favorecido_nome %!in% c("MINISTÉRIO DA FAZENDA - SECRETARIA DA RECEITA FEDERAL","INSTITUTO NACIONAL DO SEGURO SOCIAL", "MINISTÉRIO DA FAZENDA - SECRETARIA DA RECEITA FEDERAL","PREFEITURA MUNICIPAL DE SANTA TERESA","CAIXA ECONOMICA FEDERAL","SECRETARIA DE ESTADO DA AGRICULTURA, ABASTECIMENTO E PESCA - SEAG","PAGAMENTO DE SERVIDORES FMS SANTA TERESA" ,"PAGAMENTO DE SERVIDORES FMS SANTA TERESA","TESOURO NACIONAL")) %>% group_by(favorecido_nome) %>% summarise(valor = sum(valor, na.rm = TRUE)))%>% formatCurrency("valor",
+  currency = "",
+  interval = 3,
+  mark = ".",
+  digits = 0,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL)%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "10pt")
+
+
+datatable(pagamentos %>% filter(grupo != c("31000000000 - PESSOAL E ENCARGOS SOCIAIS"), elemento != "33904700000 - OBRIGAÇÕES TRIBUTARIAS E CONTRIBUTIVAS", favorecido_nome %!in% c("MINISTÉRIO DA FAZENDA - SECRETARIA DA RECEITA FEDERAL","INSTITUTO NACIONAL DO SEGURO SOCIAL", "MINISTÉRIO DA FAZENDA - SECRETARIA DA RECEITA FEDERAL","PREFEITURA MUNICIPAL DE SANTA TERESA","CAIXA ECONOMICA FEDERAL","SECRETARIA DE ESTADO DA AGRICULTURA, ABASTECIMENTO E PESCA - SEAG","PAGAMENTO DE SERVIDORES FMS SANTA TERESA" ,"PAGAMENTO DE SERVIDORES FMS SANTA TERESA","TESOURO NACIONAL")) %>% group_by(elemento, favorecido_nome) %>% summarise(valor = sum(valor, na.rm = TRUE)))%>% formatCurrency("valor",
+  currency = "",
+  interval = 3,
+  mark = ".",
+  digits = 0,
+  dec.mark = ",",
+  before = TRUE,
+  zero.print = NULL,
+  rows = NULL)%>% 
+     formatStyle(columns = colnames(.$x$data), fontSize = "10pt")
 
 ```
