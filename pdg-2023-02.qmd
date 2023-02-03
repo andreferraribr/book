@@ -1,0 +1,84 @@
+---
+title: "Proposta para os gráficos de Restos a Pagar"
+editor: visual
+---
+
+## Gráfico atual
+
+<https://www.tesourotransparente.gov.br/visualizacao/painel-do-rreo-em-foco>
+
+![](images/image-1958715046.png)
+
+## Gráfico sugerido
+
+### Pacotes e Funções
+
+```{r opcoes gerais}
+# https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
+knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE,tidy = "styler")
+options(encoding = "latin1")
+```
+
+```{r biliotecas}
+library(tidyverse)
+library(readxl)
+library(DT)
+library(plotly)
+library(lubridate)
+library(RcppRoll)
+library(scales)
+library(ggrepel)
+library(forcats)
+library(janitor)
+library(stringr)
+library(vroom)
+library(httr)
+library(purrr)
+library(vembedr)
+```
+
+```{r operador_negacao}
+# https://www.r-bloggers.com/the-notin-operator/
+'%!in%' <- Negate('%in%')
+```
+
+```{r}
+rp <- read_excel("relatorios_fiscais/rreo/rp_pdg.xlsx")
+
+colnames(rp)[1] <- "data"
+colnames(rp)[2] <- "ano"
+colnames(rp)[3] <- "mes_texto"
+colnames(rp)[4] <- "item"
+colnames(rp)[5] <- "RP_PROC"
+colnames(rp)[6] <- "RP_N_PROC"
+
+rp <- rp %>% select(-item)
+
+rp <- rp %>% mutate(RP_PROC = round(RP_PROC/1000000000,2), RP_N_PROC = round(RP_N_PROC/1000000000,2))
+
+rp <- rp %>%   mutate(data_ts = ceiling_date( parse_date_time(paste0(ano,"-",str_sub(data, start = 5L),"-01"),"%y%m%d") %m+% months(1), 'month') %m-% days(1))
+
+
+```
+
+https://www.inf.ufsc.br/\~marcelo.menezes.reis/Cap4.pdf
+
+https://rstudio.github.io/dygraphs/gallery-roll-periods.html
+
+```{r}
+library("xts")
+library("dygraphs")
+grupos_ts <- xts(rp %>% select(RP_PROC, RP_N_PROC), rp$data_ts )
+
+p <- dygraph(grupos_ts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+  dyOptions(stepPlot = TRUE)%>% 
+  dyRangeSelector()%>%
+  dyAxis("y", label = "R$ BI") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
+  dyRoller(rollPeriod = 12)
+(p)
+```
+
+```{r}
+datatable(rp)
+```
