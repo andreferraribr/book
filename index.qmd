@@ -67,6 +67,11 @@ p <- rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_
   )
 
 ggplotly(p)
+
+p <- rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2))  %>% ggplot()+ geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(investimento_repasse)), position = "fill"
+  )
+
+ggplotly(p)
   
 
 datatable(rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2)) %>% pivot_wider(names_from = investimento_repasse, values_from = saldo) %>% mutate(participacao = round((investimento_repasse/ (demais+investimento_repasse)),3)*100))
@@ -74,6 +79,12 @@ datatable(rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  g
 
 rp_ano <- rp_estoque %>% filter(`NE CCor - Ano Emissão` %!in% c("-7","-9"))%>% group_by(`NE CCor - Ano Emissão`, `Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)),2)) 
 
+
+
+
+```
+
+```{r}
 rp_ano <- rp_ano %>% mutate(tempo = as.integer(`Ano Lançamento`)-as.integer(`NE CCor - Ano Emissão`))
 
 rp_ano <- rp_ano %>% mutate (tempo = ifelse( tempo < 4, as.character( tempo), "maior que 3"))
@@ -88,8 +99,34 @@ p <- rp_ano %>%filter(tempo != 0) %>%  group_by(`Ano Lançamento`,tempo) %>% sum
   )
 
 ggplotly(p)
+```
 
+```{r}
+rp_ano <- rp_ano %>% mutate(tempo = as.integer(`Ano Lançamento`)-as.integer(`NE CCor - Ano Emissão`))
 
+rp_ano <- rp_ano %>% mutate (tempo = ifelse( tempo < 3, as.character( tempo), "3 ou mais anos"))
+
+datatable(rp_ano %>% group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>% pivot_wider(names_from = `Ano Lançamento`, values_from = saldo) )
+
+p <- rp_ano %>%filter(tempo != 0) %>%  group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>%  
+   ggplot()+ 
+  geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(tempo)))+
+     scale_fill_manual(
+    values = c("darkblue",  "lightblue", "red")
+  )
+
+ggplotly(p)
+```
+
+```{r}
+p <- rp_ano %>%filter(tempo != 0) %>%  group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>%  
+   ggplot()+ 
+  geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(tempo)), position = "fill")+
+     scale_fill_manual(
+    values = c("darkblue",  "lightblue", "red")
+  )
+
+ggplotly(p)
 ```
 
 RP por órgão superior
@@ -104,16 +141,14 @@ Estoque de RP
 
 Objetivo: visualização para capturar a evolução do estoque de restos a pagar
 
-## Gráfico atual
-
-<https://www.tesourotransparente.gov.br/visualizacao/painel-do-rreo-em-foco>
-
-![](images/image-1958715046.png)
-
 ## Gráfico sugerido
+
+### 
 
 ```{r}
 rp <- read_excel("relatorios_fiscais/rreo/rp_pdg.xlsx")
+
+
 
 colnames(rp)[1] <- "data"
 colnames(rp)[2] <- "ano"
@@ -124,7 +159,7 @@ colnames(rp)[6] <- "RP_N_PROC"
 
 rp <- rp %>% select(-item)
 
-rp <- rp %>% mutate(RP_PROC = round(RP_PROC/1000000000,2), RP_N_PROC = round(RP_N_PROC/1000000000,2))
+rp <- rp %>% mutate(RP_PROC = round(RP_PROC/1000000000,2), RP_N_PROC = round(RP_N_PROC/1000000000,2), rp = RP_PROC + RP_N_PROC)
 
 rp <- rp %>%   mutate(data_ts = ceiling_date( parse_date_time(paste0(ano,"-",str_sub(data, start = 5L),"-01"),"%y%m%d") %m+% months(1), 'month') %m-% days(1))
 
@@ -138,7 +173,7 @@ https://rstudio.github.io/dygraphs/gallery-roll-periods.html
 ```{r}
 library("xts")
 library("dygraphs")
-rp_xts <- xts(rp %>% select(RP_PROC, RP_N_PROC), rp$data_ts )
+rp_xts <- xts(rp %>% select(rp), rp$data_ts )
 
 p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
   dyOptions(stepPlot = TRUE)%>% 
@@ -155,10 +190,10 @@ https://fmeireles.com/blog/rstats/deflacionar-series-no-r-deflatebr/
 library("deflateBR")
 rp <- rp %>% mutate(RP_PROC_deflacionado = deflate(RP_PROC,  as.Date(data_ts),"12/2022", "ipca"))
 
-rp <- rp %>% mutate(RP_N_PROC_deflacionado = deflate(RP_N_PROC,  as.Date(data_ts),"12/2022", "ipca"))
+rp <- rp %>% mutate(rp_deflacionado = deflate(rp,  as.Date(data_ts),"12/2022", "ipca"))
 
 
-rp_xts_deflacionado <- xts(rp %>% select(RP_PROC_deflacionado, RP_N_PROC_deflacionado), rp$data_ts )
+rp_xts_deflacionado <- xts(rp %>% select(rp_deflacionado), rp$data_ts )
 
 p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
   dyOptions(stepPlot = TRUE)%>% 
@@ -172,12 +207,36 @@ p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi
 ```{r}
 rp <- rp %>% mutate(RP_PROC_deflacionado = deflate(RP_PROC,  as.Date(data_ts),"12/2022", "igpm"))
 
-rp <- rp %>% mutate(RP_N_PROC_deflacionado = deflate(RP_N_PROC,  as.Date(data_ts),"12/2022", "igpm"))
+rp <- rp %>% mutate(rp_deflacionado = deflate(rp,  as.Date(data_ts),"12/2022", "igpm"))
 
 
-rp_xts_deflacionado <- xts(rp %>% select(RP_PROC_deflacionado, RP_N_PROC_deflacionado), rp$data_ts )
+rp_xts_deflacionado <- xts(rp %>% select(rp_deflacionado), rp$data_ts )
 
 p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+  dyOptions(stepPlot = TRUE)%>% 
+  dyRangeSelector()%>%
+  dyAxis("y", label = "R$ BI") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
+  dyRoller(rollPeriod = 12)
+(p)
+```
+
+```{r}
+dot_atu <- read_excel("relatorios_fiscais/rreo/dot_atu.xlsx") %>% janitor::clean_names()
+
+colnames(dot_atu)[1] <- "data"
+
+dot_atu <- dot_atu %>% filter(resultado_eof_codigo %in% c(2,7,8,9)) %>% group_by(data) %>% summarise(dotacao_atualizada = sum(dotacao_atualizada))
+
+rp_dot <- left_join(rp,dot_atu %>% select (data,dotacao_atualizada))
+
+
+
+rp_dot <- rp_dot %>% mutate ( dotacao_primário_discricionário = dotacao_atualizada/1000000000)
+
+rp_xts <- xts(rp_dot %>% select(rp, dotacao_primário_discricionário), rp$data_ts )
+
+p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
   dyOptions(stepPlot = TRUE)%>% 
   dyRangeSelector()%>%
   dyAxis("y", label = "R$ BI") %>%
