@@ -1,3 +1,187 @@
-# Programa de Gestão
+---
+title: "Proposta para os gráficos de Restos a Pagar"
+editor: visual
+format:
+  html:
+    code-fold: true
+    code-summary: "mostrar o código"
+    code-overflow: wrap
+---
 
-Atividade de fevereiro de 2023
+# Proposta para os gráficos de Restos a Pagar
+
+O que são os restos a pagar
+
+processado
+
+não processado
+
+RP por ano de emissão
+
+RP por elemento da despesa
+
+```{r opcoes gerais}
+# https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
+knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE, tidy = "styler")
+options(encoding = "latin1")
+```
+
+```{r operador_negacao}
+# https://www.r-bloggers.com/the-notin-operator/
+'%!in%' <- Negate('%in%')
+```
+
+```{r biliotecas}
+library(tidyverse)
+library(readxl)
+library(DT)
+library(plotly)
+library(lubridate)
+library(RcppRoll)
+library(scales)
+library(ggrepel)
+library(forcats)
+library(janitor)
+library(stringr)
+library(vroom)
+library(httr)
+library(purrr)
+library(vembedr)
+
+```
+
+```{r}
+rp_estoque <- read_excel("relatorios_fiscais/rreo/rp_pdg_estoque.xlsx") 
+
+# rp_estoque <-  head(rp_estoque, - 1)  
+
+rp_estoque[is.na(rp_estoque)] <- 0
+
+rp_estoque <- rp_estoque %>% mutate(tipo=ifelse(`Elemento Despesa Código` %in% c(41,42,45,66,81),"descentralizado/repasse","demais"))
+
+rp_estoque <- rp_estoque %>% mutate(investimento_repasse=ifelse(tipo == "descentralizado/repasse" | `Grupo Despesa Código Grupo` == 4, "investimento_repasse", "demais"))
+
+datatable(rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2)) %>% pivot_wider(names_from = `Ano Lançamento`, values_from = saldo))
+
+p <- rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2))  %>% ggplot()+ geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(investimento_repasse))
+  )
+
+ggplotly(p)
+  
+
+datatable(rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2)) %>% pivot_wider(names_from = investimento_repasse, values_from = saldo) %>% mutate(participacao = round((investimento_repasse/ (demais+investimento_repasse)),3)*100))
+
+
+rp_ano <- rp_estoque %>% filter(`NE CCor - Ano Emissão` %!in% c("-7","-9"))%>% group_by(`NE CCor - Ano Emissão`, `Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)),2)) 
+
+rp_ano <- rp_ano %>% mutate(tempo = as.integer(`Ano Lançamento`)-as.integer(`NE CCor - Ano Emissão`))
+
+rp_ano <- rp_ano %>% mutate (tempo = ifelse( tempo < 4, as.character( tempo), "maior que 3"))
+
+datatable(rp_ano %>% group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>% pivot_wider(names_from = `Ano Lançamento`, values_from = saldo) )
+
+p <- rp_ano %>%filter(tempo != 0) %>%  group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>%  
+   ggplot()+ 
+  geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(tempo)))+
+     scale_fill_manual(
+    values = c("darkblue", "blue", "lightblue", "red")
+  )
+
+ggplotly(p)
+
+
+```
+
+RP por órgão superior
+
+RP por fase da despesa
+
+Estoque de RP
+
+<https://repositorio.idp.edu.br/bitstream/123456789/2630/1/ALEXANDRE%20DIAS.pdf>
+
+<https://portal.tcu.gov.br/imprensa/noticias/tcu-verifica-diminuicao-do-estoque-dos-restos-a-pagar-do-governo-federal.htm>
+
+Objetivo: visualização para capturar a evolução do estoque de restos a pagar
+
+## Gráfico atual
+
+<https://www.tesourotransparente.gov.br/visualizacao/painel-do-rreo-em-foco>
+
+![](images/image-1958715046.png)
+
+## Gráfico sugerido
+
+```{r}
+rp <- read_excel("relatorios_fiscais/rreo/rp_pdg.xlsx")
+
+colnames(rp)[1] <- "data"
+colnames(rp)[2] <- "ano"
+colnames(rp)[3] <- "mes_texto"
+colnames(rp)[4] <- "item"
+colnames(rp)[5] <- "RP_PROC"
+colnames(rp)[6] <- "RP_N_PROC"
+
+rp <- rp %>% select(-item)
+
+rp <- rp %>% mutate(RP_PROC = round(RP_PROC/1000000000,2), RP_N_PROC = round(RP_N_PROC/1000000000,2))
+
+rp <- rp %>%   mutate(data_ts = ceiling_date( parse_date_time(paste0(ano,"-",str_sub(data, start = 5L),"-01"),"%y%m%d") %m+% months(1), 'month') %m-% days(1))
+
+
+```
+
+https://www.inf.ufsc.br/\~marcelo.menezes.reis/Cap4.pdf
+
+https://rstudio.github.io/dygraphs/gallery-roll-periods.html
+
+```{r}
+library("xts")
+library("dygraphs")
+rp_xts <- xts(rp %>% select(RP_PROC, RP_N_PROC), rp$data_ts )
+
+p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+  dyOptions(stepPlot = TRUE)%>% 
+  dyRangeSelector()%>%
+  dyAxis("y", label = "R$ BI") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
+  dyRoller(rollPeriod = 12)
+(p)
+```
+
+https://fmeireles.com/blog/rstats/deflacionar-series-no-r-deflatebr/
+
+```{r}
+library("deflateBR")
+rp <- rp %>% mutate(RP_PROC_deflacionado = deflate(RP_PROC,  as.Date(data_ts),"12/2022", "ipca"))
+
+rp <- rp %>% mutate(RP_N_PROC_deflacionado = deflate(RP_N_PROC,  as.Date(data_ts),"12/2022", "ipca"))
+
+
+rp_xts_deflacionado <- xts(rp %>% select(RP_PROC_deflacionado, RP_N_PROC_deflacionado), rp$data_ts )
+
+p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+  dyOptions(stepPlot = TRUE)%>% 
+  dyRangeSelector()%>%
+  dyAxis("y", label = "R$ BI") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
+  dyRoller(rollPeriod = 12)
+(p)
+```
+
+```{r}
+rp <- rp %>% mutate(RP_PROC_deflacionado = deflate(RP_PROC,  as.Date(data_ts),"12/2022", "igpm"))
+
+rp <- rp %>% mutate(RP_N_PROC_deflacionado = deflate(RP_N_PROC,  as.Date(data_ts),"12/2022", "igpm"))
+
+
+rp_xts_deflacionado <- xts(rp %>% select(RP_PROC_deflacionado, RP_N_PROC_deflacionado), rp$data_ts )
+
+p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+  dyOptions(stepPlot = TRUE)%>% 
+  dyRangeSelector()%>%
+  dyAxis("y", label = "R$ BI") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
+  dyRoller(rollPeriod = 12)
+(p)
+```
