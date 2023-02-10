@@ -3,164 +3,218 @@ title: "Proposta para os gráficos de Restos a Pagar"
 editor: visual
 format:
   html:
-    code-fold: true
-    code-summary: "mostrar o código"
+    # code-fold: true
+    # code-summary: "mostrar o código"
     code-overflow: wrap
 ---
 
-# Proposta para os gráficos de Restos a Pagar
+# Objetivo
 
-O que são os restos a pagar
+O meu objetivo foi o de criar gráficos amigáveis sobre restos a pagar a pagar:
 
-processado
+1.  identificando o saldo por ano da emissão da nota de empenho (NE CCOR ano de emissão)
 
-não processado
+2.  apresentando a série histórica suavizada (média dos últimos doze meses) do saldo de restos a pagar a pagar em valores correntes e em valores deflacionados pelo IPCA.
 
-RP por ano de emissão
+3.  apresentando uma comparação histórica entre o saldo de restos a pagar a paga e a dotação atualizada de despesas discricionárias (Indicador de EOF 2, 6, 7, 8 e 9).
 
-RP por elemento da despesa
+# Passo-a-passo
 
-```{r opcoes gerais}
+## Opções dos blocos e bibliotecas
+
+Defini algumas opções para todo o documento, por exemplo, a seleção do idioma e carreguei as bibliotecas necessárias.
+
+```{r chunk_options}
 # https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
 knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE, tidy = "styler")
 options(encoding = "latin1")
 ```
 
-```{r operador_negacao}
-# https://www.r-bloggers.com/the-notin-operator/
-'%!in%' <- Negate('%in%')
-```
-
-```{r biliotecas}
+```{r libraries}
 library(tidyverse)
 library(readxl)
 library(DT)
 library(plotly)
 library(lubridate)
-library(RcppRoll)
-library(scales)
-library(ggrepel)
 library(forcats)
 library(janitor)
 library(stringr)
-library(vroom)
-library(httr)
 library(purrr)
-library(vembedr)
+```
+
+## Importar dados do Tesouro Gerencial
+
+Utilizei o Tesouro Gerencial para obter os dados utilizados neste projeto. ([link para as planilhas](https://github.com/andreferraribr/book/tree/main/relatorios_fiscais/rreo))
+
+Vamos importar os dados e renomear algumas colunas.
+
+```{r importar_dados}
+rp_ano <- read_excel("relatorios_fiscais/rreo/rp_pdg_estoque.xlsx") %>% janitor::clean_names()
+
+rp_ano <- rp_ano%>% rename( "rp_n_proc" = "restos_a_pagar_nao_processados_a_pagar" )
+rp_ano <- rp_ano%>% rename( "rp_proc" = "restos_a_pagar_processados_a_pagar" )
+
+rp_ano <- rp_ano%>% rename( "ano_empenho" = "ne_c_cor_ano_emissao" )
+
+# converte NA em zero.
+rp_ano[is.na(rp_ano)] <- 0
 
 ```
 
-```{r}
-rp_estoque <- read_excel("relatorios_fiscais/rreo/rp_pdg_estoque.xlsx") 
+## Limpar os dados
 
-# rp_estoque <-  head(rp_estoque, - 1)  
+É necessário limpar os dados:
 
-rp_estoque[is.na(rp_estoque)] <- 0
+1\) convertendo para zero os valores ausentes (NA)
 
-rp_estoque <- rp_estoque %>% mutate(tipo=ifelse(`Elemento Despesa Código` %in% c(41,42,45,66,81),"descentralizado/repasse","demais"))
+2\) excluíndo da base os registros com código de exceção.
 
-rp_estoque <- rp_estoque %>% mutate(investimento_repasse=ifelse(tipo == "descentralizado/repasse" | `Grupo Despesa Código Grupo` == 4, "investimento_repasse", "demais"))
-
-datatable(rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2)) %>% pivot_wider(names_from = `Ano Lançamento`, values_from = saldo))
-
-p <- rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2))  %>% ggplot()+ geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(investimento_repasse))
-  )
-
-ggplotly(p)
-
-p <- rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2))  %>% ggplot()+ geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(investimento_repasse)), position = "fill"
-  )
-
-ggplotly(p)
-  
-
-datatable(rp_estoque %>%filter(`Grupo Despesa Código Grupo` %in% c(1:6)) %>%  group_by( investimento_repasse,`Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)/1000000000+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)/1000000000),2)) %>% pivot_wider(names_from = investimento_repasse, values_from = saldo) %>% mutate(participacao = round((investimento_repasse/ (demais+investimento_repasse)),3)*100))
+```{r limpar_dados}
+# converte NA em zero.
+rp_ano[is.na(rp_ano)] <- 0
 
 
-rp_ano <- rp_estoque %>% filter(`NE CCor - Ano Emissão` %!in% c("-7","-9"))%>% group_by(`NE CCor - Ano Emissão`, `Ano Lançamento`) %>% summarise(saldo = round((sum(`RESTOS A PAGAR PROCESSADOS A PAGAR`)+sum(`RESTOS A PAGAR NAO PROCESSADOS A PAGAR`)),2)) 
+# https://www.r-bloggers.com/the-notin-operator/
+'%!in%' <- Negate('%in%')
 
-
-
+# filtrar os códigos de exceção
+rp_ano <- rp_ano %>% filter(ano_lancamento %!in% c("-7","-9"), ano_empenho %!in% c("-7","-9"))%>% group_by(ano_empenho, ano_lancamento) 
 
 ```
 
+## Criar variáveis "saldo", "tempo" e "defasagem"
+
+eensão dos
+
 ```{r}
-rp_ano <- rp_ano %>% mutate(tempo = as.integer(`Ano Lançamento`)-as.integer(`NE CCor - Ano Emissão`))
+rp_ano <- rp_ano%>% mutate(saldo = (rp_n_proc + rp_proc))
+```
 
-rp_ano <- rp_ano %>% mutate (tempo = ifelse( tempo < 4, as.character( tempo), "maior que 3"))
+```{r}
+datatable(rp_ano %>% group_by(ano_empenho, ano_lancamento) %>% summarise(saldo = sum(saldo)) %>% filter(saldo !=0))%>% formatCurrency(3:5, 'R$ ', digits = 1)
+```
 
-datatable(rp_ano %>% group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>% pivot_wider(names_from = `Ano Lançamento`, values_from = saldo) )
+```{r tempo}
 
-p <- rp_ano %>%filter(tempo != 0) %>%  group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>%  
+rp_ano <- rp_ano %>% mutate(tempo = as.integer(ano_lancamento)-as.integer(ano_empenho))
+
+```
+
+```{r plot_ano_empenho}
+library(viridis) 
+p <- rp_ano  %>%  group_by(ano_lancamento,ano_empenho) %>% summarise(saldo = round(sum(saldo)/1000000000,1) ) %>%  
+    ggplot()+ 
+    geom_col(aes(x=ano_lancamento, y=saldo, fill =(ano_empenho)))
+ggplotly(p)
+```
+
+Creie a variável "defasagem" para identificar o tempo entre a emissão do empenho e o ano do lançamento do resto a pagar. Se considerarmos o ano fiscal de 2021, um empenho emitido em 2019 terá uma defasagem de 2 anos.
+
+Para deixar o gráfico mais intuitivo, a variável "defasagem" pode assumir apenas um dos três valores abaixo:
+
+-   1 ano,
+
+-   2 anos
+
+-   maior que 2 anos.
+
+Dessa forma, os empenhos mais defasados foram agrupados em "maior que 2 anos".
+
+```{r defasagem}
+rp_ano <- rp_ano %>% mutate (defasagem = case_when(
+  tempo == 1 ~ "1 ano",
+  tempo == 2 ~ "2 anos",
+  TRUE ~ "maior que 2 anos"
+                                                ))
+
+datatable(rp_ano %>% filter(ano_lancamento > 2018, ano_empenho > 2015) %>% group_by(ano_empenho,ano_lancamento, defasagem) %>% summarise(defasagem= max(defasagem)) %>% pivot_wider(names_from = ano_lancamento, values_from = defasagem), colnames = c( 'ano do empenho', 'lançamento em 2019', 'lançamento em 2020', 'lançamento em 2021', 'lançamento em 2022'), options = list(
+  language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
+  pageLength = 10
+),
+  caption = 'Restos a Pagar a Pagar: defasagem temporal.')
+```
+
+```{r plot_saldo_defasagem}
+p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(saldo)/1000000000,1) ) %>%  
    ggplot()+ 
-  geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(tempo)))+
+  geom_col(aes(x=ano_lancamento, y=saldo, fill =(defasagem)))+
      scale_fill_manual(
-    values = c("darkblue", "blue", "lightblue", "red")
-  )
+    values = c("darkblue", "lightblue", "red")
+  )+ ggtitle("Restos a Pagar: defasagem temporal do empenho")+ labs(y = "saldo em R$ BI", x = "ano lançamento")
 
 ggplotly(p)
 ```
 
-```{r}
-rp_ano <- rp_ano %>% mutate(tempo = as.integer(`Ano Lançamento`)-as.integer(`NE CCor - Ano Emissão`))
-
-rp_ano <- rp_ano %>% mutate (tempo = ifelse( tempo < 3, as.character( tempo), "3 ou mais anos"))
-
-datatable(rp_ano %>% group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>% pivot_wider(names_from = `Ano Lançamento`, values_from = saldo) )
-
-p <- rp_ano %>%filter(tempo != 0) %>%  group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>%  
+```{r plot_defasagem_saldo_participacao}
+p <- rp_ano %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(saldo)/1000000000,1) ) %>%  
    ggplot()+ 
-  geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(tempo)))+
+  geom_col(aes(x=ano_lancamento, y=saldo, fill =(defasagem)), position = "fill")+
      scale_fill_manual(
-    values = c("darkblue",  "lightblue", "red")
-  )
+    values = c("darkblue", "lightblue", "red")
+  )+ ggtitle("Restos a Pagar a Pagar: defasagem temporal do empenho")+ labs(y = "participação", x = "ano lançamento")+ theme(
+  axis.text.y = element_blank(),
+  axis.ticks = element_blank())
 
 ggplotly(p)
 ```
 
-```{r}
-p <- rp_ano %>%filter(tempo != 0) %>%  group_by(`Ano Lançamento`,tempo) %>% summarise(saldo = sum(saldo)) %>%  
+```{r plot_rp_N_proc}
+p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(rp_n_proc)/1000000000,1) ) %>%  
    ggplot()+ 
-  geom_col(aes(x=`Ano Lançamento`, y=saldo, fill =(tempo)), position = "fill")+
+  geom_col(aes(x=ano_lancamento, y=saldo, fill =(defasagem)))+
      scale_fill_manual(
-    values = c("darkblue",  "lightblue", "red")
-  )
+    values = c("darkblue", "lightblue", "red")
+  )+ ggtitle("Restos a Pagar NÃO Processados a Pagar: defasagem temporal do empenho")+ labs(y = "saldo em R$ BI", x = "ano lançamento")
 
-ggplotly(p)
+ggplotly(p) 
 ```
 
-RP por órgão superior
+```{r plor_rp_proc}
+p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(rp_proc)/1000000000,1) ) %>%  
+   ggplot()+ 
+  geom_col(aes(x=ano_lancamento, y=saldo, fill =(defasagem)))+
+     scale_fill_manual(
+    values = c("darkblue", "lightblue", "red")
+  )+ ggtitle("Restos a Pagar Processados a Pagar: defasagem temporal do empenho")+ labs(y = "saldo em R$ BI", x = "ano lançamento")
 
-RP por fase da despesa
+ggplotly(p) 
+```
 
-Estoque de RP
+```{r rp_proc_salto}
+salto <- (rp_ano %>% filter(ano_lancamento %in% c(2019,2020)) %>% group_by(elemento_despesa_nome, ano_lancamento, ano_empenho) %>% summarise(rp_proc = round(sum(rp_proc)/1000000,1)) %>% pivot_wider(names_from = ano_lancamento, values_from = rp_proc) )
 
-<https://repositorio.idp.edu.br/bitstream/123456789/2630/1/ALEXANDRE%20DIAS.pdf>
+salto[is.na(salto)] <- 0
 
-<https://portal.tcu.gov.br/imprensa/noticias/tcu-verifica-diminuicao-do-estoque-dos-restos-a-pagar-do-governo-federal.htm>
+salto <- salto %>% mutate(diferenca = `2020`- `2019`)
+```
 
-Objetivo: visualização para capturar a evolução do estoque de restos a pagar
+```{r rp_proc_maiores_acrescimos}
 
-## Gráfico sugerido
+datatable(head(salto %>% filter (diferenca != 0)%>% arrange(desc(diferenca) ),10), colnames = c('elemento da despesa', 'ano do empenho', 'lançamento em 2019', 'lançamento em 2020', 'variação'), options = list(
+  language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
+  pageLength = 10
+),
+  caption = 'Restos a Pagar Processados a Pagar: maiores acréscimos entre os exercícios de 2019 e 2020 em R$ milhões.')%>% formatCurrency(3:5, 'R$ ', digits = 1)
+```
 
-### 
+```{r rp_proc_maiores_reducoes}
+datatable(head(salto %>% filter (diferenca != 0)%>% arrange((diferenca) ),10), colnames = c('elemento da despesa', 'ano do empenho', 'lançamento em 2019', 'lançamento em 2020', 'variação'), options = list(
+  language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
+  pageLength = 10
+),
+  caption = 'Restos a Pagar Processados a Pagar: maiores reduções entre os exercícios de 2019 e 2020 em R$ milhões.')%>% formatCurrency(3:5, 'R$ ', digits = 1)
+```
 
 ```{r}
 rp <- read_excel("relatorios_fiscais/rreo/rp_pdg.xlsx")
-
-
-
 colnames(rp)[1] <- "data"
 colnames(rp)[2] <- "ano"
 colnames(rp)[3] <- "mes_texto"
 colnames(rp)[4] <- "item"
 colnames(rp)[5] <- "RP_PROC"
 colnames(rp)[6] <- "RP_N_PROC"
-
 rp <- rp %>% select(-item)
-
 rp <- rp %>% mutate(RP_PROC = round(RP_PROC/1000000000,2), RP_N_PROC = round(RP_N_PROC/1000000000,2), rp = RP_PROC + RP_N_PROC)
-
 rp <- rp %>%   mutate(data_ts = ceiling_date( parse_date_time(paste0(ano,"-",str_sub(data, start = 5L),"-01"),"%y%m%d") %m+% months(1), 'month') %m-% days(1))
 
 
@@ -188,7 +242,7 @@ https://fmeireles.com/blog/rstats/deflacionar-series-no-r-deflatebr/
 
 ```{r}
 library("deflateBR")
-rp <- rp %>% mutate(RP_PROC_deflacionado = deflate(RP_PROC,  as.Date(data_ts),"12/2022", "ipca"))
+
 
 rp <- rp %>% mutate(rp_deflacionado = deflate(rp,  as.Date(data_ts),"12/2022", "ipca"))
 
@@ -196,27 +250,10 @@ rp <- rp %>% mutate(rp_deflacionado = deflate(rp,  as.Date(data_ts),"12/2022", "
 rp_xts_deflacionado <- xts(rp %>% select(rp_deflacionado), rp$data_ts )
 
 p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
-  dyOptions(stepPlot = TRUE)%>% 
+  dyOptions(stepPlot = TRUE)%>%
   dyRangeSelector()%>%
   dyAxis("y", label = "R$ BI") %>%
-  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
-  dyRoller(rollPeriod = 12)
-(p)
-```
-
-```{r}
-rp <- rp %>% mutate(RP_PROC_deflacionado = deflate(RP_PROC,  as.Date(data_ts),"12/2022", "igpm"))
-
-rp <- rp %>% mutate(rp_deflacionado = deflate(rp,  as.Date(data_ts),"12/2022", "igpm"))
-
-
-rp_xts_deflacionado <- xts(rp %>% select(rp_deflacionado), rp$data_ts )
-
-p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
-  dyOptions(stepPlot = TRUE)%>% 
-  dyRangeSelector()%>%
-  dyAxis("y", label = "R$ BI") %>%
-  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>%
   dyRoller(rollPeriod = 12)
 (p)
 ```
