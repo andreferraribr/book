@@ -14,11 +14,15 @@ O meu objetivo foi o de criar gráficos amigáveis sobre restos a pagar a pagar:
 
 1.  identificando o saldo por ano da emissão da nota de empenho (NE CCOR ano de emissão)
 
-2.  apresentando a série histórica suavizada (média dos últimos doze meses) do saldo de restos a pagar a pagar em valores correntes e em valores deflacionados pelo IPCA.
+2.  apresentando a série histórica suavizada (média dos últimos doze meses) do saldo de restos a pagar a pagar:
 
-3.  apresentando uma comparação histórica entre o saldo de restos a pagar a paga e a dotação atualizada de despesas discricionárias (Indicador de EOF 2, 6, 7, 8 e 9).
+    -    em valores correntes
 
-# Passo-a-passo
+    -   em valores deflacionados pelo IPCA.
+
+    -   comparada com a dotação atualizada de despesas discricionárias (Indicador de Resultado Primário EOF 2, 6, 7, 8 e 9).
+
+# Defasagem Temporal
 
 ## Opções dos blocos e bibliotecas
 
@@ -44,7 +48,7 @@ library(purrr)
 
 ## Importar dados do Tesouro Gerencial
 
-Utilizei o Tesouro Gerencial para obter os dados utilizados neste projeto. ([link para as planilhas](https://github.com/andreferraribr/book/tree/main/relatorios_fiscais/rreo))
+Utilizei o Tesouro Gerencial para obter os dados utilizados neste projeto. ([rp_pdg_estoque.xlsx](https://github.com/andreferraribr/book/blob/main/relatorios_fiscais/rreo/rp_pdg_estoque.xlsx "rp_pdg_estoque.xlsx"))
 
 Vamos importar os dados e renomear algumas colunas.
 
@@ -84,21 +88,30 @@ rp_ano <- rp_ano %>% filter(ano_lancamento %!in% c("-7","-9"), ano_empenho %!in%
 
 ## Criar variáveis "saldo", "tempo" e "defasagem"
 
-eensão dos
+Para facilitar os cálculos, vamos criar variável **saldo** a partir da soma dos saldos de RP Procesado a Pagar e RP *Não* Processado a Pagar.
+
+### Variável "saldo"
 
 ```{r}
 rp_ano <- rp_ano%>% mutate(saldo = (rp_n_proc + rp_proc))
 ```
 
+Apresentamos na Tabela 1 o saldo de Restos a Pagar a Pagar detalhado por ano do empenho e ano do lançamento.
+
 ```{r}
-datatable(rp_ano %>% group_by(ano_empenho, ano_lancamento) %>% summarise(saldo = sum(saldo)) %>% filter(saldo !=0))%>% formatCurrency(3:5, 'R$ ', digits = 1)
+datatable(rp_ano %>% group_by(ano_empenho, ano_lancamento) %>% summarise(saldo = sum(saldo)) %>% filter(saldo !=0), options = list(
+  language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
+  pageLength = 10
+),
+  caption = 'Tabela 1. Restos a Pagar a Pagar: saldo por ano do empenho.')%>% formatCurrency(3, 'R$ ', mark = ".",
+  digits = 2,  dec.mark = ",")
 ```
 
-```{r tempo}
+A partir da Tabela 1 observamos a reinscrição de Restos a Pagar empenhados no ano 2000. O saldo de R\$ 840,00 empenhado em 2000 foi lançado/reinscrito nos exercícios de 2008, 2009 e 2010 até finalmente ser baixado. Não pesquisei o motivo do saldo ter sido baixado. Pode ter ocorrido o pagamento ou o cancelamento do valor inscrito.
 
-rp_ano <- rp_ano %>% mutate(tempo = as.integer(ano_lancamento)-as.integer(ano_empenho))
+A Figura 1 ilustra a reinscrição e posterior baixa dos empenhos emitidos em 2000.
 
-```
+![Figura 1: Reinscrição de Restos a Pagar](relatorios_fiscais/rreo/ano_empenho.png)
 
 ```{r plot_ano_empenho}
 library(viridis) 
@@ -108,7 +121,26 @@ p <- rp_ano  %>%  group_by(ano_lancamento,ano_empenho) %>% summarise(saldo = rou
 ggplotly(p)
 ```
 
-Creie a variável "defasagem" para identificar o tempo entre a emissão do empenho e o ano do lançamento do resto a pagar. Se considerarmos o ano fiscal de 2021, um empenho emitido em 2019 terá uma defasagem de 2 anos.
+### Variável "tempo"
+
+```{r tempo}
+
+rp_ano <- rp_ano %>% mutate(tempo = as.integer(ano_lancamento)-as.integer(ano_empenho))
+```
+
+```{r dt_tempo}
+
+datatable(rp_ano %>% group_by(tempo, ano_lancamento) %>% summarise(saldo = sum(saldo)) %>% arrange((ano_lancamento),desc(tempo)) %>% filter(saldo !=0), options = list(
+  language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
+  pageLength = 10
+),  caption = 'Restos a Pagar a Pagar: saldo por ano do empenho.')%>% formatCurrency(3, 'R$ ', mark = ".",
+  digits = 2,  dec.mark = ",")
+
+```
+
+### Variável "defasagem"
+
+Criei a variável "defasagem" para identificar o tempo entre a emissão do empenho e o ano do lançamento do resto a pagar. Se considerarmos o ano fiscal de 2021, um empenho emitido em 2019 terá uma defasagem de 2 anos.
 
 Para deixar o gráfico mais intuitivo, a variável "defasagem" pode assumir apenas um dos três valores abaixo:
 
@@ -134,6 +166,10 @@ datatable(rp_ano %>% filter(ano_lancamento > 2018, ano_empenho > 2015) %>% group
   caption = 'Restos a Pagar a Pagar: defasagem temporal.')
 ```
 
+## Restos a Pagar: defasagem temporal do empenho
+
+### Detalhando por valor do saldo
+
 ```{r plot_saldo_defasagem}
 p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(saldo)/1000000000,1) ) %>%  
    ggplot()+ 
@@ -144,6 +180,8 @@ p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round
 
 ggplotly(p)
 ```
+
+### Detalhando por participação em relação ao total
 
 ```{r plot_defasagem_saldo_participacao}
 p <- rp_ano %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(saldo)/1000000000,1) ) %>%  
@@ -158,6 +196,8 @@ p <- rp_ano %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(
 ggplotly(p)
 ```
 
+## Restos a Pagar *NÃO* Processados: defasagem temporal do empenho
+
 ```{r plot_rp_N_proc}
 p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(rp_n_proc)/1000000000,1) ) %>%  
    ggplot()+ 
@@ -168,6 +208,8 @@ p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round
 
 ggplotly(p) 
 ```
+
+## Restos a Pagar Processados: defasagem temporal do empenho
 
 ```{r plor_rp_proc}
 p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(sum(rp_proc)/1000000000,1) ) %>%  
@@ -180,6 +222,10 @@ p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round
 ggplotly(p) 
 ```
 
+## Restos a Pagar Processados: variação entre 2019 e 2202
+
+## 
+
 ```{r rp_proc_salto}
 salto <- (rp_ano %>% filter(ano_lancamento %in% c(2019,2020)) %>% group_by(elemento_despesa_nome, ano_lancamento, ano_empenho) %>% summarise(rp_proc = round(sum(rp_proc)/1000000,1)) %>% pivot_wider(names_from = ano_lancamento, values_from = rp_proc) )
 
@@ -188,14 +234,21 @@ salto[is.na(salto)] <- 0
 salto <- salto %>% mutate(diferenca = `2020`- `2019`)
 ```
 
+### Maiores Acréscimos
+
+### 
+
 ```{r rp_proc_maiores_acrescimos}
 
 datatable(head(salto %>% filter (diferenca != 0)%>% arrange(desc(diferenca) ),10), colnames = c('elemento da despesa', 'ano do empenho', 'lançamento em 2019', 'lançamento em 2020', 'variação'), options = list(
   language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
   pageLength = 10
 ),
-  caption = 'Restos a Pagar Processados a Pagar: maiores acréscimos entre os exercícios de 2019 e 2020 em R$ milhões.')%>% formatCurrency(3:5, 'R$ ', digits = 1)
+  caption = 'Restos a Pagar Processados a Pagar: maiores acréscimos entre os exercícios de 2019 e 2020 em R$ milhões.')%>% formatCurrency(3:5, 'R$ ', digits = 1) %>%
+  DT::formatStyle(columns = colnames(.), fontSize = '50%')
 ```
+
+### Maiores Reduções
 
 ```{r rp_proc_maiores_reducoes}
 datatable(head(salto %>% filter (diferenca != 0)%>% arrange((diferenca) ),10), colnames = c('elemento da despesa', 'ano do empenho', 'lançamento em 2019', 'lançamento em 2020', 'variação'), options = list(
@@ -204,6 +257,14 @@ datatable(head(salto %>% filter (diferenca != 0)%>% arrange((diferenca) ),10), c
 ),
   caption = 'Restos a Pagar Processados a Pagar: maiores reduções entre os exercícios de 2019 e 2020 em R$ milhões.')%>% formatCurrency(3:5, 'R$ ', digits = 1)
 ```
+
+# Série Histórica
+
+## Importar e tratar dados
+
+Utilizei o Tesouro Gerencial para obter os dados utilizados neste projeto. ([rp_pdg.xlsx](https://github.com/andreferraribr/book/blob/main/relatorios_fiscais/rreo/rp_pdg.xlsx "rp_pdg_estoque.xlsx"))
+
+Vamos importar os dados, renomear algumas colunas e criar uma variável "data_ts" para ser a data da série histórica.
 
 ```{r}
 rp <- read_excel("relatorios_fiscais/rreo/rp_pdg.xlsx")
@@ -220,9 +281,23 @@ rp <- rp %>%   mutate(data_ts = ceiling_date( parse_date_time(paste0(ano,"-",str
 
 ```
 
+```{r}
+datatable(rp %>% filter(ano == 2008) %>% select(data, rp) %>% adorn_totals("row"), options = list(
+  language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
+  pageLength = 15
+),
+  caption = 'Restos a Pagar Processados a Pagar: maiores reduções entre os exercícios de 2019 e 2020 em R$ bilhões.')%>% formatCurrency(2, 'R$ ', digits = 1)
+```
+
+Média móvel = R\$ 458,4/12
+
+$458.4 / 12 = 38.2$
+
 https://www.inf.ufsc.br/\~marcelo.menezes.reis/Cap4.pdf
 
 https://rstudio.github.io/dygraphs/gallery-roll-periods.html
+
+## Série histórica suavizada
 
 ```{r}
 library("xts")
@@ -239,6 +314,8 @@ p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado p
 ```
 
 https://fmeireles.com/blog/rstats/deflacionar-series-no-r-deflatebr/
+
+## Série histórica suavizada: deflacionada pelo IPCA
 
 ```{r}
 library("deflateBR")
@@ -258,6 +335,8 @@ p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi
 (p)
 ```
 
+## Série histórica suavizada: comparada com a dotação atualizada
+
 ```{r}
 dot_atu <- read_excel("relatorios_fiscais/rreo/dot_atu.xlsx") %>% janitor::clean_names()
 
@@ -271,6 +350,10 @@ rp_dot <- left_join(rp,dot_atu %>% select (data,dotacao_atualizada))
 
 rp_dot <- rp_dot %>% mutate ( dotacao_primário_discricionário = dotacao_atualizada/1000000000)
 
+
+```
+
+```{r}
 rp_xts <- xts(rp_dot %>% select(rp, dotacao_primário_discricionário), rp$data_ts )
 
 p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
