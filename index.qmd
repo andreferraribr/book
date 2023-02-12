@@ -206,7 +206,7 @@ p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round
 ggplotly(p)
 ```
 
-A partir do gráfico 2 observamos um ponto de inflexão no ano de 2018. Entre 2018 e 2019 ocorre uma redução de aproximadamente 52% no estoque de RP a Pagar mais antigos (barra vermelha).
+A partir do gráfico 2 observamos um ponto de inflexão no ano de 2018. Entre 2019 e 2020 ocorre uma redução de aproximadamente 52% no estoque de RP a Pagar mais antigos (barra vermelha).
 
 ### Detalhando por participação em relação ao total
 
@@ -257,11 +257,9 @@ p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round
 ggplotly(p) 
 ```
 
-## RP Processados a Pagar: variação entre 2018 e 2019
+## RP Processados a Pagar: variação entre 2019 e 2020
 
-## 
-
-Por curiosidade, resolvemos investigar o salto no estoque de RP Processados entre 2018 e 2019.
+Por curiosidade, resolvemos investigar o salto no estoque de RP Processados entre 2019 e 2020.
 
 ```{r rp_proc_salto}
 salto <- (rp_ano %>% filter(ano_lancamento %in% c(2019,2020)) %>% group_by(elemento_despesa_nome, ano_lancamento, ano_empenho) %>% summarise(rp_proc = round(sum(rp_proc)/1000000,1)) %>% pivot_wider(names_from = ano_lancamento, values_from = rp_proc) )
@@ -273,7 +271,7 @@ salto <- salto %>% mutate(diferenca = `2020`- `2019`)
 
 ### Maiores Acréscimos
 
-A Tabela 4 apresenta os elementos da despesa com maior acréscimo no saldo de RP Processado entre 2018 e 2019.
+A Tabela 4 apresenta os elementos da despesa com maior acréscimo no saldo de RP Processado entre 2019 e 2020.
 
 ### 
 
@@ -290,7 +288,7 @@ datatable(head(salto %>% filter (diferenca != 0)%>% arrange(desc(diferenca) ),10
 
 ### Maiores Reduções
 
-Já a Tabela 5 apresenta os elementos da despesa com maior redução no saldo de RP Processado entre 2018 e 2019.
+Já a Tabela 5 apresenta os elementos da despesa com maior redução no saldo de RP Processado entre 2019 e 2020.
 
 ```{r rp_proc_maiores_reducoes_tabela_5}
 datatable(head(salto %>% filter (diferenca != 0)%>% arrange((diferenca) ),10), colnames = c('elemento da despesa', 'ano do empenho', 'lançamento em 2019', 'lançamento em 2020', 'variação'), options = list(
@@ -324,43 +322,55 @@ rp <- rp %>%   mutate(data_ts = ceiling_date( parse_date_time(paste0(ano,"-",str
 
 ```
 
-Quando utilizamos os
+## Série Histórica
 
-```{r }
-#| label: fig-r
-#| fig-cap: "mensal x média móvel de 12 meses"
-#| layout-ncol: 2
+O Gráfico 6 com os saldos mensais apresenta picos acentuados nos meses de janeiro e valores decrescentes ao longo do exercício até atingir o valor mínimo em dezembro. O gráfico reflete o comportamento esperado dos RP a Pagar, uma vez que no ínicio de cada ano ocorre a inscrição e a reinscrição de Restos a Pagar e ao longo do ano o saldo é pago ou cancelado.
 
+```{r serie_hist_grafico_6}
 
 library("xts")
 library("dygraphs")
 rp_xts <- xts(rp %>% select(rp), rp$data_ts )
 
-p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi") %>%
+p <- dygraph(rp_xts, main = "Gráfico 6. RP a pagar em R$ bilhões") %>%
   dyOptions(stepPlot = TRUE)%>% 
   dyRangeSelector()%>%
   dyAxis("y", label = "R$ BI") %>%
   dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
   dyRoller(rollPeriod = 1)
 
-p_12 <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+
+
+(p)
+
+
+```
+
+## Série Histórica Suavizada: média móvel de 12 meses.
+
+Apesar do gráfico mensal apresentar o comportamento efetivo dos RP a Pagar, a interpretação fica prejudicada com as oscilações abruptas nas mudanças de exercício. Para minimizar o impacto das oscilações, otpamos por trabalhar com a média móvel de 12 meses.
+
+O pacote [dygraphs](https://rstudio.github.io/dygraphs/gallery-roll-periods.html) cria automaticamente a média móvel e suaviza a série histórica. O Gráfico 7 apresenta o saldo de RP a Pagar suavizado.
+
+```{r serie_hist_suavizada_grafico_7}
+p_12 <- dygraph(rp_xts, main = "Gráfico 7. RP a Pagar em R$ Bilhões: média móvel de 12 meses") %>%
   dyOptions(stepPlot = TRUE)%>% 
   dyRangeSelector()%>%
   dyAxis("y", label = "R$ BI") %>%
   dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
   dyRoller(rollPeriod = 12)
-
-(p)
 (p_12)
-
 ```
 
-## 
-Série histórica suavizada
+A partir do décimo segundo mês da série histórica, o pacote [dygraphs](https://rstudio.github.io/dygraphs/gallery-roll-periods.html) calcula a média móvel dividindo a soma dos saldos dos dozes meses por doze. A Figura 2 informa que em dezembro de 2008, o saldo suavizado era de R\$ 38,2 bilhões.
 
-## 
+![Figura 2. Saldo em Dezembro/2008 (média móvel de 12 meses)](relatorios_fiscais/rreo/12_meses.png)
 
-```{r}
+A Tabela 6 traz os saldos mensais do RP a Pagar para o ano de 2008. O valor da soma de todos os saldos mensais do ano de 2008 foi de R\$ 458,4 bilhões. Ao dividirmos o 458,4 bilhões por 12 meses chegamos a R\$ 38,2 bilhões.
+
+O Gráfico 7, com a média móvel, pode assumir os mesmos valores do Gráfico 6. Para tanto, basta mudar de 12 para 1 o valor no canto inferior do gráfico (o número circulado em vermelho na Figura 2).
+
+```{r media_movel_tabela_6}
 datatable(rp %>% filter(ano == 2008) %>% select(ano, mes_texto, rp) %>% adorn_totals("row"), options = list(
   language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
   pageLength = 15
@@ -368,21 +378,9 @@ datatable(rp %>% filter(ano == 2008) %>% select(ano, mes_texto, rp) %>% adorn_to
   caption = 'Tabela 6. RP a Pagar: R$ bilhões.')%>% formatCurrency(3, 'R$ ', mark = ".",  digits = 1,  dec.mark = ",")
 ```
 
-Média móvel = R\$ 458,4/12
+## Série histórica suavizada: média móvel de 12 meses deflacionada pelo IPCA
 
-$458.4 / 12 = 38.2$
-
-https://www.inf.ufsc.br/\~marcelo.menezes.reis/Cap4.pdf
-
-https://rstudio.github.io/dygraphs/gallery-roll-periods.html
-
-## 
-
-https://www.inf.ufsc.br/\~marcelo.menezes.reis/Cap4.pdf
-
-https://fmeireles.com/blog/rstats/deflacionar-series-no-r-deflatebr/
-
-## Série histórica suavizada: deflacionada pelo IPCA
+Este gráfico complementar (Gráfico 8) segue a lógica da média móvel de 12 meses, mas deflaciona os valores pelo IPCA.
 
 ```{r}
 library("deflateBR")
@@ -393,7 +391,7 @@ rp <- rp %>% mutate(rp_deflacionado = deflate(rp,  as.Date(data_ts),"12/2022", "
 
 rp_xts_deflacionado <- xts(rp %>% select(rp_deflacionado), rp$data_ts )
 
-p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+p <- dygraph(rp_xts_deflacionado, main = "Gráfico 8. RP a Pagar em R$ Bilhões: média móvel de 12 meses deflacionada pelo IPCA") %>%
   dyOptions(stepPlot = TRUE)%>%
   dyRangeSelector()%>%
   dyAxis("y", label = "R$ BI") %>%
@@ -402,28 +400,27 @@ p <- dygraph(rp_xts_deflacionado, main = "Restos a Pagar: saldo a pagar em R$ Bi
 (p)
 ```
 
-## Série histórica suavizada: comparada com a dotação atualizada
+## Série histórica suavizada: média móvel de 12 meses comparada com a dotação atualizada
+
+Por fim, comparamos o saldo de RP a Pagar com a dotação atualizada das despesas primárias discricionárias. Consideramos a dotação com os indicadores de resultado primário EOF com os códigos 2, 6, 7, 8 e 9. O código 2 identifica as despesas sob a gestão do Poder Executivo Federal enquanto os códigos 6 a 9 são emendas parlamentares determinadas pelo Congresso Nacional.
 
 ```{r}
 dot_atu <- read_excel("relatorios_fiscais/rreo/dot_atu.xlsx") %>% janitor::clean_names()
 
 colnames(dot_atu)[1] <- "data"
 
-dot_atu <- dot_atu %>% filter(resultado_eof_codigo %in% c(2,7,8,9)) %>% group_by(data) %>% summarise(dotacao_atualizada = sum(dotacao_atualizada))
+# filtrar as despesas discricionarias
+dot_atu <- dot_atu %>% filter(resultado_eof_codigo %in% c(2, 6,7,8,9)) %>% group_by(data) %>% summarise(dotacao_atualizada = sum(dotacao_atualizada))
 
 rp_dot <- left_join(rp,dot_atu %>% select (data,dotacao_atualizada))
 
-
-
 rp_dot <- rp_dot %>% mutate ( dotacao_primário_discricionário = dotacao_atualizada/1000000000)
-
-
 ```
 
 ```{r}
 rp_xts <- xts(rp_dot %>% select(rp, dotacao_primário_discricionário), rp$data_ts )
 
-p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado por 12 meses)") %>%
+p <- dygraph(rp_xts, main = "Gráfico 9. RP a Pagar (média móvel de 12 meses) x Dotação Atualizada em R$ Bilhões") %>%
   dyOptions(stepPlot = TRUE)%>% 
   dyRangeSelector()%>%
   dyAxis("y", label = "R$ BI") %>%
@@ -431,3 +428,5 @@ p <- dygraph(rp_xts, main = "Restos a Pagar: saldo a pagar em R$ Bi (suavizado p
   dyRoller(rollPeriod = 12)
 (p)
 ```
+
+A partir do Gráfico 9 é possível observar que a partir de 2016 a dotação de despesas discricionárias passou a superar o saldo de RP a Pagar.
