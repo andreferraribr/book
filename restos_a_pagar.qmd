@@ -1,5 +1,5 @@
 ---
-title: "Proposta para os gráficos de Restos a Pagar"
+title: "Restos a Pagar"
 editor: visual
 format:
   html:
@@ -8,7 +8,7 @@ format:
     code-overflow: wrap
 ---
 
-# Apresentação
+## Apresentação
 
 O meu objetivo foi o de criar gráficos amigáveis sobre Restos a Pagar a Pagar (RP a Pagar):
 
@@ -24,7 +24,7 @@ O meu objetivo foi o de criar gráficos amigáveis sobre Restos a Pagar a Pagar 
 
 A seguir justifico a **escolha pelo RP a Pagar**, explano o passo-a-passo da criação da variável "**defasagem temporal**" e sua utilização para monitorar o saldo do RP a Pagar e, finalmente, apresento a construção de **séries históricas** com os saldos do RP a Pagar.
 
-# Por que utilizar o RP a Pagar?
+## Por que utilizar o RP a Pagar?
 
 Optei por utilzar o RP a Pagar, pois esta métrica engloba tanto o saldo final dos Restos a Pagar Processados quanto o saldo final dos Restos a Pagar Não Processados. Ou seja, o RP a Pagar é o resultado final dos Restos a Pagar inscritos, reinscritos, cancelados e pagos.
 
@@ -32,11 +32,11 @@ A importância do RP a Pagar pode ser atestada pelo Manual de Demonstrativos Fis
 
 ![Figura 1. Manual de Demonstrativos Fiscais: Anexo 7 (Restos a Pagar)](relatorios_fiscais/rreo/formula_rp.png){alt="Figura 1. Manual de Demonstrativos Fiscais: Anexo 7 (Restos a Pagar)" fig-alt="Fórmula do RP a Pagar"}
 
-# Defasagem Temporal
+## Defasagem Temporal
 
 Vou utilizar a variável "defasagem" para obter uma visualização mais intuitiva dos saldos de RP a Pagar. A seguir apresento as etapas para a criação da variável e a utilização da "defasagem" para criar gráficos e tabelas.
 
-## Opções dos blocos e bibliotecas
+### Opções dos blocos e bibliotecas
 
 Defini algumas opções para todo o documento e carreguei as bibliotecas necessárias.
 
@@ -58,7 +58,7 @@ library(stringr)
 library(purrr)
 ```
 
-## Importar dados do Tesouro Gerencial
+### Importar dados do Tesouro Gerencial
 
 Utilizei o Tesouro Gerencial para obter os dados utilizados neste projeto. ([rp_pdg_estoque.xlsx](https://github.com/andreferraribr/book/blob/main/relatorios_fiscais/rreo/rp_pdg_estoque.xlsx "rp_pdg_estoque.xlsx"))
 
@@ -74,7 +74,7 @@ rp_ano <- rp_ano%>% rename( "ano_empenho" = "ne_c_cor_ano_emissao" )
 
 ```
 
-## Limpar os dados
+### Limpar os dados
 
 É necessário limpar os dados:
 
@@ -95,11 +95,11 @@ rp_ano <- rp_ano %>% filter(ano_lancamento %!in% c("-7","-9"), ano_empenho %!in%
 
 ```
 
-## Criar variáveis "saldo" (RP a Pagar), "tempo" e "defasagem"
+### Criar variáveis "saldo" (RP a Pagar), "tempo" e "defasagem"
 
 Para facilitar os cálculos, vamos criar a variável **saldo** a partir da soma dos saldos de RP Procesado a Pagar e RP *Não* Processado a Pagar. A variável saldo representa o RP a Pagar.
 
-### Variável "saldo"
+#### Variável "saldo"
 
 ```{r saldo}
 rp_ano <- rp_ano%>% mutate(saldo = (rp_n_proc + rp_proc))
@@ -132,7 +132,7 @@ p <- rp_ano  %>%  group_by(ano_lancamento,ano_empenho) %>% summarise(saldo = rou
 ggplotly(p)
 ```
 
-### Variável "tempo"
+#### Variável "tempo"
 
 Com a variável tempo podemos harmonizar a interpretação dos dados. Por exemplo, um empenho emitido em 2012 teria um tempo de 3 anos no exercício fiscal (ano lançamento) de 2015. Ou seja, 2015 - 2012 = 3 anos. Da mesma maneira, um empenho de 2014 teria um tempo de 3 anos no exercício fiscal de 2017.
 
@@ -157,7 +157,7 @@ datatable(rp_ano %>% group_by(tempo, ano_lancamento) %>% summarise(saldo = sum(s
 
 ```
 
-### Variável "defasagem"
+#### Variável "defasagem"
 
 Criei a variável "defasagem" para facilitar a visualização do tempo entre a emissão do empenho e o ano do lançamento do RP a Pagar. Se considerarmos o ano fiscal de 2021, um empenho emitido em 2019 terá uma defasagem de 2 anos.
 
@@ -191,9 +191,9 @@ datatable(rp_ano %>% filter(ano_lancamento > 2018, ano_empenho > 2015) %>% group
   caption = 'Tabela 3. RP a Pagar: defasagem temporal.')
 ```
 
-## RP a Pagar: defasagem temporal do empenho
+### RP a Pagar: defasagem temporal do empenho
 
-### Detalhando por valor do saldo
+#### Detalhando por valor do saldo
 
 Agora vamos plotar o saldo do RP a Pagar detalhado pela variável defasagem.
 
@@ -210,7 +210,7 @@ ggplotly(p)
 
 A partir do gráfico 2 observamos um ponto de inflexão no ano de 2018. Entre 2018 e 2019 ocorre uma redução de aproximadamente 52% no estoque de RP a Pagar mais antigos (barra vermelha).
 
-### Detalhando por participação em relação ao total
+#### Detalhando por participação em relação ao total
 
 O gráfico 3 mostra também o estoque de RP a Pagar, mas a defasagem desta vez é apresentada de forma proporcional ao invés de ser em bilhões de reais.
 
@@ -227,7 +227,7 @@ p <- rp_ano %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round(
 ggplotly(p)
 ```
 
-## RP *NÃO* Processados: defasagem temporal do empenho
+### RP *NÃO* Processados: defasagem temporal do empenho
 
 A variável "defasagem" pode ser utilizada para plotar, de maneira segregada, gráficos de RP Processados e RP *Não* Processados. Abaixo o Gráfico 4 traz a defasagem para o saldo de RP Não Processados a Pagar.
 
@@ -244,7 +244,7 @@ ggplotly(p)
 
 Era esperado que o Gráfico 4 fosse semelhante ao Gráfico 2, pois o RP *Não* Processado corresponde a aproximadamente 90% de todo o saldo do Restos a Pagar. Logo, também percebemos no Gráfico 4 (RP Processados) uma queda, a partir do ano de 2018, no estoque de empenhos mais antigos.
 
-## RP Processados a Pagar: defasagem temporal do empenho
+### RP Processados a Pagar: defasagem temporal do empenho
 
 O comportamento do RP Processado foi diferente do RP Não Processado. Uma vez que, a partir de 2019 ocorre um salto no estoque de RP Processados mais antigos (barra vermelha).
 
@@ -259,7 +259,7 @@ p <- rp_ano  %>%  group_by(ano_lancamento,defasagem) %>% summarise(saldo = round
 ggplotly(p) 
 ```
 
-## RP Processados a Pagar: variação entre 2019 e 2020
+### RP Processados a Pagar: variação entre 2019 e 2020
 
 Por curiosidade, resolvemos investigar o salto no estoque de RP Processados entre 2019 e 2020.
 
@@ -271,7 +271,7 @@ salto[is.na(salto)] <- 0
 salto <- salto %>% mutate(diferenca = `2020`- `2019`)
 ```
 
-### Maiores Acréscimos
+#### Maiores Acréscimos
 
 A Tabela 4 apresenta os elementos da despesa com maior acréscimo no saldo de RP Processado entre 2019 e 2020.
 
@@ -286,7 +286,7 @@ datatable(head(salto %>% filter (diferenca != 0)%>% arrange(desc(diferenca) ),10
   DT::formatStyle(columns = colnames(.), fontSize = '50%')
 ```
 
-### Maiores Reduções
+#### Maiores Reduções
 
 Já a Tabela 5 apresenta os elementos da despesa com maior redução no saldo de RP Processado entre 2019 e 2020.
 
@@ -299,9 +299,9 @@ datatable(head(salto %>% filter (diferenca != 0)%>% arrange((diferenca) ),10), c
   digits = 1,  dec.mark = ",")
 ```
 
-# Série Histórica
+## Série Histórica
 
-## Importar e tratar dados
+### Importar e tratar dados
 
 Utilizei o Tesouro Gerencial para obter os dados utilizados neste projeto. ([rp_pdg.xlsx](https://github.com/andreferraribr/book/blob/main/relatorios_fiscais/rreo/rp_pdg.xlsx "rp_pdg_estoque.xlsx"))
 
@@ -322,7 +322,7 @@ rp <- rp %>%   mutate(data_ts = ceiling_date( parse_date_time(paste0(ano,"-",str
 
 ```
 
-## Série Histórica
+### Série Histórica
 
 O Gráfico 6 com os saldos mensais apresenta picos acentuados nos meses de janeiro e valores decrescentes ao longo do exercício até atingir o valor mínimo em dezembro. O gráfico reflete o comportamento esperado dos RP a Pagar, uma vez que no ínicio de cada ano ocorre a inscrição e a reinscrição de Restos a Pagar e ao longo do ano o saldo é pago ou cancelado.
 
@@ -346,7 +346,7 @@ p <- dygraph(rp_xts, main = "Gráfico 6. RP a pagar em R$ bilhões") %>%
 
 ```
 
-## Série Histórica Suavizada: média móvel de 12 meses.
+### Série Histórica Suavizada: média móvel de 12 meses.
 
 Apesar do gráfico mensal apresentar o comportamento efetivo dos RP a Pagar, a interpretação fica prejudicada com as oscilações abruptas nas mudanças de exercício. Para minimizar o impacto das oscilações, otpamos por trabalhar com a média móvel de 12 meses.
 
@@ -378,7 +378,7 @@ A partir do décimo segundo mês da série histórica, o pacote [dygraphs](https
 
 ![Figura 3. Saldo em Dezembro/2008 (média móvel de 12 meses)](relatorios_fiscais/rreo/12_meses.png){alt="Figura 3. Saldo em Dezembro/2008 (média móvel de 12 meses)"}
 
-## Série histórica suavizada: média móvel de 12 meses deflacionada pelo IPCA
+### Série histórica suavizada: média móvel de 12 meses deflacionada pelo IPCA
 
 Este gráfico complementar (Gráfico 8) segue a lógica da média móvel de 12 meses, mas deflaciona os valores pelo IPCA.
 
@@ -400,7 +400,7 @@ p <- dygraph(rp_xts_deflacionado, main = "Gráfico 8. RP a Pagar em R$ Bilhões:
 (p)
 ```
 
-## Série histórica suavizada: média móvel de 12 meses comparada com a dotação atualizada
+### Série histórica suavizada: média móvel de 12 meses comparada com a dotação atualizada
 
 Por fim, comparamos o saldo de RP a Pagar com a dotação atualizada das despesas primárias discricionárias. Consideramos a dotação com os indicadores de resultado primário EOF com os códigos 2, 6, 7, 8 e 9. O código 2 identifica as despesas sob a gestão do Poder Executivo Federal enquanto os códigos 6 a 9 são emendas parlamentares determinadas pelo Congresso Nacional.
 
