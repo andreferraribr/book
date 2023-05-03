@@ -1,5 +1,5 @@
 ---
-title: "previdencia"
+title: "Previdência"
 editor: visual
 format:
   html:
@@ -7,6 +7,16 @@ format:
     code-summary: "mostrar o código"
     code-overflow: wrap
 ---
+
+## Introdução
+
+A União apresenta no Anexo 4 as receitas, despesas e resultados dos regimes previdenciários. A Figura 1 traz o gráfico no RREO em Foco enquanto a Figura 2 traz o gráfico do painel do Tesouro Transparente. O nosso objetivo é construir um gráfico capaz de apresentar simultaneamente a evolução temporal das receitas, despesas e resultados previdenciários.
+
+[![Figura 1: gráfico do anexo 4](images/anexo_4_previdencia.png)](https://sisweb.tesouro.gov.br/apex/f?p=2501:9::::9:P9_ID_PUBLICACAO:46900)
+
+RGPS
+
+[![Figura 2: gráfico RGPS](images/rgps.png)](https://www.tesourotransparente.gov.br/temas/contabilidade-e-custos/relatorios-contabeis-e-series-historicas-uniao)
 
 ```{r opcoes}
 # https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
@@ -21,103 +31,47 @@ library(DT)
 library(plotly)
 library(lubridate)
 library(RcppRoll)
-library(scales)
 library(ggrepel)
 library(forcats)
 library(janitor)
 library(rjson)
 library(stringr)
-library(jsonlite)
-library(vroom)
-library(httr)
-library(purrr)
-```
-
-```{r tema}
-
-tema <- theme_classic() + theme(plot.title=element_text(size=12,hjust = 0 ),
-          plot.subtitle = element_text(size=10,hjust = 0),
-          plot.caption = element_text(color = "green", face = "italic"),
-          axis.text = element_text(size=10),
-          axis.title=element_text(size=10),
-          axis.ticks.y=element_blank(),
-          legend.position = "none") 
-# https://rpubs.com/mclaire19/ggplot2-custom-themes
-# https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html
-# https://themockup.blog/posts/2020-12-26-creating-and-using-custom-ggplot2-themes/
+library("xts")
+library("dygraphs")
 ```
 
 ```{r}
+
 previ <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
     sheet = "previdencia") %>% clean_names()
 
 
 
-
-
-# regime <-function(regime){ previ %>% select("mes_de_referencia",starts_with(paste0("movimento_receitas_",regime)),starts_with(paste0("movimento_despesas_",regime)))%>% rename(
-#     mes = mes_de_referencia,
-#     receita = paste0("movimento_receitas_",regime),
-#     despesa  = paste0("movimento_despesas_",regime)
-# ) %>% mutate(resultado = receita - despesa)  %>%
-#     mutate(receita_acumulada = roll_sum(receita,12, fill=NA, align="right")/1000000000) %>%
-#     mutate(despesa_acumulada = roll_sum(despesa,12, fill=NA, align="right")/1000000000) %>%
-#     mutate(resultado_acumulado = roll_sum(resultado,12, fill=NA, align="right")/1000000000)
-# }
-
-
-
-regime <-function(regime){ previ %>% select("mes_de_referencia",starts_with(paste0("movimento_receitas_",regime)),starts_with(paste0("movimento_despesas_",regime)))%>% rename(
+regime <-function(regime){ previ %>% select("mes_de_referencia",starts_with(paste0("receitas_",regime,"_12_meses")),starts_with(paste0("despesas_",regime,"_12_meses")))%>% rename(
     mes = mes_de_referencia,
-    receita = paste0("movimento_receitas_",regime),
-    despesa  = paste0("movimento_despesas_",regime)) %>% filter(despesa > 0) %>% 
+    receita = paste0("receitas_",regime,"_12_meses"),
+    despesa  = paste0("despesas_",regime,"_12_meses")) %>% filter(despesa > 0) %>% 
     mutate(receita = round(receita/1000000000,2)) %>% 
     mutate(despesa = round(despesa/1000000000,2)) %>% 
-    mutate(resultado = receita - despesa)  %>%
-    mutate(receita_acumulada = roll_sum(receita,12, fill=NA, align="right")) %>%
-    mutate(despesa_acumulada = roll_sum(despesa,12, fill=NA, align="right")) %>%
-    mutate(resultado_acumulado = roll_sum(resultado,12, fill=NA, align="right"))
-  }
-
-
-regime_pivotado <- function(df){
- df %>% select(mes,receita_acumulada,despesa_acumulada,resultado_acumulado) %>% pivot_longer(!mes,names_to = "item", values_to = "saldo_acumulado") %>% mutate(saldo_acumulado = if_else(startsWith(item,"despesa"), saldo_acumulado*-1,saldo_acumulado))
+    mutate(resultado = receita-despesa)
 }
 
+
+
+
 militares <- regime ("militares")
-militares_pivotado <- regime_pivotado(militares)
+
 
 rgps <- regime("rgps")
-rgps_pivotado <- regime_pivotado(rgps)
+
+
 
 fcdf <- regime("fcdf")
-fcdf_pivotado <- regime_pivotado(fcdf)
+
 
 rpps <- regime("rpps_civis")
-rpps_pivotado <- regime_pivotado(rpps)
-
-# p <- ggplot(NULL,aes(x= mes, y = saldo_acumulado) )+
-#   geom_area(data = rgps_pivotado %>% filter(item != "resultado_acumulado"), aes(fill = item))+
-#   geom_line(data =rgps_pivotado %>% filter(item == "resultado_acumulado"), color= "red" )
-# ggplotly(p) 
 
 
-regime_plot <- function(df){p <- ggplot(NULL,aes(x= mes, y = saldo_acumulado) )+
-  geom_area(data = df %>% filter(item != "resultado_acumulado"), aes(fill = item))+
-  geom_line(data =df %>% filter(item == "resultado_acumulado"), color= "red" )+tema
-ggplotly(p) }
-regime_plot(fcdf_pivotado)
-regime_plot(rpps_pivotado)
-regime_plot(rgps_pivotado)
-regime_plot(militares_pivotado)
-
-
-```
-
-```{r}
-
-library("xts")
-library("dygraphs")
 
 rpps_xts <- xts(rpps %>% mutate(despesa= despesa*-1) %>% select(receita,despesa, resultado), rpps$mes )
 rgps_xts <- xts(rgps %>% mutate(despesa= despesa*-1) %>% select(receita,despesa, resultado), rgps$mes )
@@ -127,42 +81,30 @@ militares_xts <- xts(militares %>% mutate(despesa= despesa*-1) %>% select(receit
 
 
 xts_plot <- function(df, titulo){dygraph(df, main = titulo) %>%
-  dyOptions(stepPlot = TRUE)%>% 
+  dyOptions(stepPlot = TRUE)%>%
   dyRangeSelector()%>%
   dyAxis("y", label = "R$ BI") %>%
-  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>%
   dyRoller(rollPeriod = 1) %>%
   dyHighlight(highlightSeriesOpts = list(strokeWidth = 3))%>%
   dySeries("receita",fillGraph = TRUE , color = "blue") %>%
   dySeries("despesa", fillGraph = TRUE, color = "red") %>%
-  dyFilledLine("resultado",  color = "black", strokePattern = "dashed")
+  dyFilledLine("resultado",  color = "black", strokePattern = "dashed")%>%
+  dyLegend(width = 400)
 
-  
+
 }
 
-p <- dygraph(rp_xts, main = "Gráfico 6. RP a pagar em R$ bilhões") %>%
-  dyOptions(stepPlot = TRUE)%>% 
-  dyRangeSelector()%>%
-  dyAxis("y", label = "R$ BI") %>%
-  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>% 
-  dyRoller(rollPeriod = 1) %>%
-  dyHighlight(highlightSeriesOpts = list(strokeWidth = 3))%>%
-  dySeries("receita",fillGraph = TRUE , color = "blue") %>%
-  dySeries("despesa", fillGraph = TRUE, color = "red") %>%
-  dyFilledLine("resultado",  color = "black", strokePattern = "dashed")
 
-
-
-(p)
-p <- xts_plot(rpps_xts,"rpps")
+p <- xts_plot(rpps_xts,"RPPS: últimos 12 meses (R$ Bi)")
 p
 
-p <- xts_plot(rgps_xts,"rgps")
+p <- xts_plot(rgps_xts,"RGPS: últimos 12 meses (R$ Bi)")
 p
 
-p <- xts_plot(militares_xts,"militates")
+p <- xts_plot(militares_xts,"Previdência Militares: últimos 12 meses (R$ Bi)")
 p
 
-p <- xts_plot(fcdf_xts,"fcdf")
+p <- xts_plot(fcdf_xts,"FCDF: últimos 12 meses (R$ Bi)")
 p
 ```
