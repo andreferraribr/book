@@ -12,19 +12,20 @@ format:
 
 A União apresenta no Anexo 4 as receitas, despesas e resultados dos regimes previdenciários. A Figura 1 traz o gráfico no RREO em Foco enquanto a Figura 2 traz o gráfico do painel do Tesouro Transparente. O nosso objetivo é construir um gráfico capaz de apresentar simultaneamente a evolução temporal das receitas, despesas e resultados previdenciários.
 
-[![Figura 1: gráfico do anexo 4](images/anexo_4_previdencia.png)](https://sisweb.tesouro.gov.br/apex/f?p=2501:9::::9:P9_ID_PUBLICACAO:46900)
+[![Figura 1: RREO em Foco: gráfico do anexo 4](images/anexo_4_previdencia.png)](https://sisweb.tesouro.gov.br/apex/f?p=2501:9::::9:P9_ID_PUBLICACAO:46900)
 
 RGPS
 
-[![Figura 2: gráfico RGPS](images/rgps.png)](https://www.tesourotransparente.gov.br/temas/contabilidade-e-custos/relatorios-contabeis-e-series-historicas-uniao)
+[![Figura 2. Tesouro Transparente: gráfico RGPS](images/rgps.png)](https://www.tesourotransparente.gov.br/temas/contabilidade-e-custos/relatorios-contabeis-e-series-historicas-uniao)
 
-```{r opcoes}
+```{r}
+# definir opções para o código
 # https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
 knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE,tidy = "styler")
 options(encoding = "latin1")
-```
 
-```{r}
+
+# importar bibliotecas
 library(tidyverse)
 library(readxl)
 library(DT)
@@ -38,48 +39,50 @@ library(rjson)
 library(stringr)
 library("xts")
 library("dygraphs")
-```
 
-```{r}
-
+# importar dados (planilha de trabalho da GEINF)
 previ <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
     sheet = "previdencia") %>% clean_names()
 
 
-
+# criar função para identificar os regimes previdenciários
 regime <-function(regime){ previ %>% select("mes_de_referencia",starts_with(paste0("receitas_",regime,"_12_meses")),starts_with(paste0("despesas_",regime,"_12_meses")))%>% rename(
     mes = mes_de_referencia,
+    # renomear variáveis para falicitar compreensão do código
     receita = paste0("receitas_",regime,"_12_meses"),
     despesa  = paste0("despesas_",regime,"_12_meses")) %>% filter(despesa > 0) %>% 
+    # transformar valores em bilhões, transformar receita em valor negativo e calcular o resultado previdenciário
     mutate(receita = round(receita/1000000000,2)) %>% 
-    mutate(despesa = round(despesa/1000000000,2)) %>% 
-    mutate(resultado = receita-despesa)
+    mutate(despesa = round(-despesa/1000000000,2)) %>% 
+    mutate(resultado = receita+despesa) %>% 
+    select(receita, despesa, resultado, mes)
 }
 
 
+# excluir o ano de 2023 para facilitar a comparação com os dados das figuras 1 e 2
+previ <- previ %>% filter(ano != 2023)
 
 
+# utilizar a função regime para gerar as tabelas para os quatro regimes previdenciários
 militares <- regime ("militares")
-
 
 rgps <- regime("rgps")
 
-
-
 fcdf <- regime("fcdf")
-
 
 rpps <- regime("rpps_civis")
 
+# converter as tabelas para objeto xts
 
+rpps_xts <- xts(rpps %>% select(-mes), rpps$mes )
 
-rpps_xts <- xts(rpps %>% mutate(despesa= despesa*-1) %>% select(receita,despesa, resultado), rpps$mes )
-rgps_xts <- xts(rgps %>% mutate(despesa= despesa*-1) %>% select(receita,despesa, resultado), rgps$mes )
+rgps_xts <- xts(rgps%>% select(-mes), rgps$mes  )
 
-fcdf_xts <- xts(fcdf %>% mutate(despesa= despesa*-1) %>% select(receita,despesa, resultado), fcdf$mes )
-militares_xts <- xts(militares %>% mutate(despesa= despesa*-1) %>% select(receita,despesa, resultado), militares$mes )
+fcdf_xts <- xts(fcdf%>% select(-mes), fcdf$mes)
 
+militares_xts <- xts(militares%>% select(-mes),militares$mes )
 
+# criar função para gerar os gráficos
 xts_plot <- function(df, titulo){dygraph(df, main = titulo) %>%
   dyOptions(stepPlot = TRUE)%>%
   dyRangeSelector()%>%
@@ -95,16 +98,16 @@ xts_plot <- function(df, titulo){dygraph(df, main = titulo) %>%
 
 }
 
+# utilizar a função xts_plot para gerar os gráficos para os quatro regimes previdenciários
+(p_rpps <- xts_plot(rpps_xts,"RPPS: últimos 12 meses (R$ Bi)"))
 
-p <- xts_plot(rpps_xts,"RPPS: últimos 12 meses (R$ Bi)")
-p
 
-p <- xts_plot(rgps_xts,"RGPS: últimos 12 meses (R$ Bi)")
-p
+(p_rgps <- xts_plot(rgps_xts,"RGPS: últimos 12 meses (R$ Bi)"))
 
-p <- xts_plot(militares_xts,"Previdência Militares: últimos 12 meses (R$ Bi)")
-p
 
-p <- xts_plot(fcdf_xts,"FCDF: últimos 12 meses (R$ Bi)")
-p
+(p_militares <- xts_plot(militares_xts,"Previdência Militares: últimos 12 meses (R$ Bi)"))
+
+
+(p_fcdf <- xts_plot(fcdf_xts,"FCDF: últimos 12 meses (R$ Bi)"))
+
 ```
