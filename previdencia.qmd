@@ -3,8 +3,6 @@ title: "Previdência"
 editor: visual
 format:
   html:
-    code-fold: true
-    code-summary: "mostrar o código"
     code-overflow: wrap
 ---
 
@@ -23,19 +21,18 @@ RGPS
 # https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
 knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE,tidy = "styler")
 options(encoding = "latin1")
+```
+
+```{r}
+
 
 
 # importar bibliotecas
 library(tidyverse)
 library(readxl)
-library(DT)
-library(plotly)
 library(lubridate)
-library(RcppRoll)
 library(ggrepel)
-library(forcats)
 library(janitor)
-library(rjson)
 library(stringr)
 library("xts")
 library("dygraphs")
@@ -109,5 +106,4 @@ xts_plot <- function(df, titulo){dygraph(df, main = titulo) %>%
 
 
 (p_fcdf <- xts_plot(fcdf_xts,"FCDF: últimos 12 meses (R$ Bi)"))
-
 ```
