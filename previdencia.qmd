@@ -6,7 +6,7 @@ format:
     code-overflow: wrap
 ---
 
-## Introdução
+## Resultado Previdenciário
 
 A União apresenta no Anexo 4 as receitas, despesas e resultados dos regimes previdenciários. A Figura 1 traz o gráfico no RREO em Foco enquanto a Figura 2 traz o gráfico do painel do Tesouro Transparente. O nosso objetivo é construir um gráfico capaz de apresentar simultaneamente a evolução temporal das receitas, despesas e resultados previdenciários.
 

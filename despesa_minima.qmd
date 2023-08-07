@@ -10,15 +10,15 @@ format:
 
 ## Introdução
 
-O anexo 8 do RREO da União deve apresentar um comparativo entre a meta anual e as despesas executadas com Educação. O Anexo 12, por sua vez, traz uma comparação entre a meta anual e as despesas executadas com Saúde.
+O anexo 8 do RREO da União deve apresentar um comparativo entre a meta anual e as despesas executadas com Educação. O Anexo 12, por sua vez, traz uma comparação entre a meta anual e as despesas executadas com Saúde. As informações do RREO são apresentadas em forma de gráficos e tabelas no [RREO em Foco](https://www.tesourotransparente.gov.br/publicacoes/rreo-em-foco-uniao/2022/12).
 
-A figura 1 e a figura 2 trazem dois gráficos utilizados para monitorar as despesas com Educação. Na figura 1 o foco é o cumprimento da meta anual.
+Trouxe do RREO em Foco dois gráficos utilizados para monitorar as despesas com Educação. A figura 1 apresenta um gráfico destinado a monitorar o cumprimento da meta anual.
 
-![Figura 1. Despesas com educação: meta anual.](relatorios_fiscais/rreo/minimo_despesa/meta_vs_executado.png)
+![Figura 1. Despesas com educação: meta anual (RREO em Foco Dez/2022).](relatorios_fiscais/rreo/minimo_despesa/meta_vs_executado.png)
 
-Já a figura 2 apresenta um comparativo entre a despesa até o mês, no exercício mais recente, com a despesa do mesmo mês em exercícios anteriores.
+Já a figura 2 traz a tabela do RREO em Foco que faz um comparativo entre a despesa até o mês, no exercício mais recente, com a despesa do mesmo mês em exercícios anteriores.
 
-![Figura 2. Despesas com educação: comparação com exercícios anteriores.](relatorios_fiscais/rreo/minimo_despesa/serie_historica.png)
+![Figura 2. Despesas com educação: comparação com exercícios anteriores (RREO em Foco Dez/2022) .](relatorios_fiscais/rreo/minimo_despesa/serie_historica.png)
 
 ## Objetivo
 
@@ -31,6 +31,8 @@ O meu objetivo é criar um gráfico para apresentar simultaneamente:
 3\) o cumprimento da meta
 
 ## Construindo o gráfico
+
+Para iniciar a construção do gráfico precisamos inicialmente definir regras gerais para o código, importar as bibliotecas e definir um "tema" único para os gráficos.
 
 ```{r opcoes}
 # https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
@@ -50,24 +52,35 @@ library(stringr)
 library(purrr)
 ```
 
-```{r operador_negacao}
-# https://www.r-bloggers.com/the-notin-operator/
-'%!in%' <- Negate('%in%')
-```
+A variável "tema" estabelece os critérios para as fontes e os eixos dos gráficos. A variável "tema" facilita a padronização e personalização dos gráficos.
 
-```{r tema_para_plots}
+```{r tema}
+
 tema <- theme_classic() + theme(plot.title=element_text(size=12,hjust = 0 ),
-         
+          plot.subtitle = element_text(size=10,hjust = 0),
+          plot.caption = element_text(color = "green", face = "italic"),
           axis.text = element_text(size=10),
           axis.title=element_text(size=10),
           axis.ticks.y=element_blank(),
-          legend.position = "none")
+          legend.position = "none") 
 # https://rpubs.com/mclaire19/ggplot2-custom-themes
 # https://bookdown.org/rdpeng/RProgDA/building-a-new-theme.html
 # https://themockup.blog/posts/2020-12-26-creating-and-using-custom-ggplot2-themes/
 ```
 
-## Preparando os dados
+### Preparar os dados
+
+Nós vamos utilizar os dados oficiais do RREO da União. Só alterei os nomes das colunas 1, 4 e 5 para facilitar o entendimento do código. Também criei quatro variáveis:
+
+1\) percentual: o percentual da despesa executada até o mês,
+
+2\) mes: o mês de lançamento da despesa
+
+3\) ano: o ano de lançamento da despesa
+
+4\) cores: *red* se o percentual da despesa executada é menor que a meta, caso contrário, assume o valor *blue*.
+
+Também criei a data frame "atual" com os dados do mês mais recente. A data frame "atual" será utilizada para gerar automaticamente o título do gráfico e o label do valor executado referente ao mês mais recente.
 
 ```{r dados_educacao}
 educacao <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
@@ -75,45 +88,64 @@ educacao <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx",
         "numeric", "numeric", "numeric", 
         "numeric"))
 
+# alterar o nome das colunas para padronizar com os dados da despesa com Saúde
 names(educacao)[1] <- "date"
 names(educacao)[4] <- "executado"
 names(educacao)[5] <- "minimo"
 
 
-
+# criar variáveis percentual (o percentual da despesa executada até o mês), mes e ano.
 educacao <- educacao %>% mutate (percentual = round(100*executado/minimo,1), mes = month(date, label = TRUE), ano = year(date))
 
 
-
+# criar variável cores: vermelho se ainda não atingiu a meta. Azul se atingiu a meta.
 educacao <- educacao %>% mutate(cores = if_else(percentual<100,"red","blue"))
 
 educacao <-educacao %>%
   mutate(cores = fct_reorder(cores, desc(cores)))
 
+# criar DF com os valores do mês mais recente.
 atual <- educacao %>% filter (date == max(date))
 ```
 
-```{r}
-datatable(educacao %>% select(mes, ano, percentual, cores))
+### Tabelar os dados da despesa com educação
+
+A tabela 1 foi criada a partir das variáveis mes, ano, percentual e cores. A tabela 1 possibilita identificar que a variável cores assume o valor *red* quando a despesa executada é inferior à meta de 100%. Por exemplo, em 2008, a meta só foi atingida no mês de dezembro e, por esse motivo, a variável cores assume o valor *blue* em dez/2008. Já no ano de 2016, a meta foi atingida precocemente no mês de outubro. Logo, a variável cores assumiu o valor *blue* para outubro, novembro e dezembro de 2016.
+
+```{r tabela_1}
+datatable(educacao %>% select(mes, ano, percentual, cores), options = list(
+  language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),
+  pageLength = 12
+),
+  caption = 'Tabela 1. Despesa mínima com educação: percentual executado.')%>% formatCurrency(3, '', mark = ",",
+  digits = 1,  dec.mark = ".")
 ```
 
-### Evolução da despesa no exercício atual
+Após estruturarmos os dados, nós vamos construir passa-a-passo o nosso gráfico.
 
-```{r}
+### Apresentar a evolução da despesa no exercício atual
+
+A primeira etapa da construção do gráfico final será plotar um intermediário contemplando apenas a execução da despesa no ano mais recente. No nosso caso, o ano mais recente é o de 2022. A partir desses dados vamos plotar um gráfico de dispersão.
+
+```{r grafico_1_exercicio_atual}
 p <- ggplot(data=educacao %>% filter (ano == max(ano) ), aes(x= mes, y=percentual)) +
   geom_point()+
 
    # definir informação dos eixos
     labs( x = "",
           y = "%")+
-   tema
+   tema+ ggtitle("Gráfico 1: Despesa com educação: percentual executado ao longo de 2022")
     
-ggplotly(p)    
+ggplotly(p )  %>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)
 ```
 
-### Comparação entre a despesa no exercício atual e nos exercícios anteriores
+### Comparar a despesa no exercício atual com a despesa nos exercícios anteriores
 
-```{r}
+No gráfico 2 apresentamos simultaneamente a execução da despesa no exercício de 2022 e a execução da despesa nos exercícios de 2008 a 2021. Por apresentar muitos dados, o Gráfico 2 dificulta a identificação da execução da despesa no exercício de 2022. A seguir nós vamos destacar visualmente o exercício de 2022.
+
+```{r grafico_2_todo_periodo}
 
 
   
@@ -122,29 +154,78 @@ p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = perce
    # definir informação dos eixos
     labs( x = "",
           y = "%")+
-   tema
+   tema+ ggtitle( paste0( "Gráfico 2: Despesa com educação: percentual executado no período de 2008 a ",   atual$ano))
 
-ggplotly(p)
+ggplotly(p)  %>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)
 ```
 
-### Verificação do cumprimento da meta
+### Diferenciar o exercíco atual dos exercícios anteriores
 
-## 
+O gráfico 3 traz os mesmos dados do gráfico 2. Fizemos as seguintes alterações na apresentação dos dados:
 
-```{r}
-p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = percentual), width = 0.1, height = 0.1, alpha=0.2) +  geom_jitter( ) +
+1\) destacamos o exercício atual, o ano de 2022, com a tonalidade mais escura
+
+2\) agrupamos os pontos ao redor do mês (eixo x)
+
+O objetivo é identificar qual ponto pertence a qual mês e também quais pontos pertencem ao exercício mais recente.
+
+```{r grafico_3_jitter}
+p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = percentual), width = 0.1, height = 0.1, alpha=0.2) +
+  # geom_jitter exclui com "filter (ano != max(ano))" o ano atual para evitar a apresentação de dois pontos para a mesmo exercício.
+  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
+    geom_jitter( data = educacao %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
+  # plotar o point do ano atual selecionada
+    geom_point(data = educacao %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
+    
+   # definir informação dos eixos
+    labs( x = "",
+          y = "%")+
+   tema+ 
+  ggtitle( paste0( "Gráfico 3: Despesa com educação: percentual executado no período de 2008 a ",   atual$ano))
+
+ggplotly(p)%>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)
+```
+
+### Verificar o cumprimento da meta
+
+Vamos acrescentar agora uma linha horizontal tracejada vermelha representando a meta de 100% da execução da despesa com educação. Assim poderemos verificar em qual mês a meta é atingida e/ou superada.
+
+```{r grafico_4_linha_meta }
+p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = percentual), width = 0.1, height = 0.1, alpha=0.2) +
+  # geom_jitter exclui com "filter (ano != max(ano))" o ano atual para evitar a apresentação de dois pontos para a mesmo exercício.
+  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
+    geom_jitter( data = educacao %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
+  # plotar o point do ano atual selecionada
+    geom_point(data = educacao %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
     
    # definir informação dos eixos
     labs( x = "",
           y = "%")+
    tema+
-  geom_hline(yintercept= 100, colour = "red", linetype = "dashed") 
+  geom_hline(yintercept= 100, colour = "red", linetype = "dashed") + 
+  ggtitle( paste0( "Gráfico 4: Despesa com educação: percentual executado no período de 2008 a ",   atual$ano))
 
-ggplotly(p)
+ggplotly(p)%>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)
+
 ```
 
-```{r}
-p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = percentual, color = cores), width = 0.1, height = 0.1, alpha=0.2) +  geom_jitter( ) +
+### Destacar o exercíco atual com uma linha
+
+Para destacar ainda mais o exercício mais recente, nós vamos ligar com uma linha preta os pontos referentes aos meses do ano de 2022.
+
+```{r grafico_5_geom_line}
+p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = percentual), width = 0.1, height = 0.1, alpha=0.2) +
+  # geom_jitter exclui com "filter (ano != max(ano))" o ano atual para evitar a apresentação de dois pontos para a mesmo exercício.
+  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
+    geom_jitter( data = educacao %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
+  # plotar o point do ano atual selecionada
+    geom_point(data = educacao %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
     
    # definir informação dos eixos
     labs( x = "",
@@ -152,18 +233,97 @@ p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = perce
    tema+
   geom_hline(yintercept= 100, colour = "red", linetype = "dashed") +
   # escala de cor. Os levels são definidos na coluna cores da df.
-    scale_color_manual(breaks = levels(educacao$cores),
-                        values=levels(educacao$cores))
+    # https://ggplot2.tidyverse.org/reference/geom_smooth.html
+  # inherit.aes =FALSE para evitar duas linhas de tendência.
+  # Caso contrário teríamos uma linha de tendência para a cada factor level (coluna cores).
 
-ggplotly(p)
+  # inherit.aes =FALSE para nao herdar aes do geoms anteriores. Caso contrário a linha teria duas cores
+    geom_line(data = educacao %>% filter (ano == max(ano) ),  inherit.aes =FALSE, aes(x=month(as.Date(date)), y=percentual), size = 0.2)+
+    scale_color_manual(breaks = levels(educacao$cores),
+                        values=levels(educacao$cores))+ 
+  ggtitle( paste0( "Gráfico 5: Despesa com educação: percentual executado no período de 2008 a ",   atual$ano))
+
+ggplotly(p)%>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)
 ```
 
-Criando uma função para gerar o gráfico
+### Destacar o cumprimento da meta com as cores azul e vermelho
 
-## 
+Agora vamos utilizar a variável cores para destacar visualmente o cumprimento da meta. Pontos em vermelho significam meta não atingida. Pontos em azul indicam o cumprimento da meta.
+
+```{r grafico_6_pontos_coloridos}
+p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = percentual, color = cores), width = 0.1, height = 0.1, alpha=0.2) +
+  # geom_jitter exclui com "filter (ano != max(ano))" o ano atual para evitar a apresentação de dois pontos para a mesmo exercício.
+  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
+    geom_jitter( data = educacao %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
+  # plotar o point do ano atual selecionada
+    geom_point(data = educacao %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
+    
+   # definir informação dos eixos
+    labs( x = "",
+          y = "%")+
+   tema+
+  geom_hline(yintercept= 100, colour = "red", linetype = "dashed") +
+  # escala de cor. Os levels são definidos na coluna cores da df.
+    # https://ggplot2.tidyverse.org/reference/geom_smooth.html
+  # inherit.aes =FALSE para evitar duas linhas de tendência.
+  # Caso contrário teríamos uma linha de tendência para a cada factor level (coluna cores).
+
+  # inherit.aes =FALSE para nao herdar aes do geoms anteriores. Caso contrário a linha teria duas cores
+    geom_line(data = educacao %>% filter (ano == max(ano) ),  inherit.aes =FALSE, aes(x=month(as.Date(date)), y=percentual), size = 0.2)+
+    scale_color_manual(breaks = levels(educacao$cores),
+                        values=levels(educacao$cores))+ 
+  ggtitle( paste0( "Gráfico 6: Despesa com educação: percentual executado no período de 2008 a ",   atual$ano))
+
+ggplotly(p)%>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)
+```
+
+### Texto explicativo
+
+Por fim, vamos gerar automaticamente um texto para informar o cumprimento da meta até o mês mais recente.
+
+```{r grafico_7_label_geom_text}
+p <-   ggplot(data = educacao , aes(x = mes, text=paste("ANO: ", ano), y = percentual, color = cores), width = 0.1, height = 0.1, alpha=0.2) +
+  # geom_jitter exclui com "filter (ano != max(ano))" o ano atual para evitar a apresentação de dois pontos para a mesmo exercício.
+  # Caso contrário teríamos um ponto plotado pelo geom_jitter e outro plotado pelo geom_point
+    geom_jitter( data = educacao %>% filter (ano != max(ano)), aes(x = mes, text=paste("ANO: ", ano)), width = 0.1, height = 0.1, alpha=0.2) +
+  # plotar o point do ano atual selecionada
+    geom_point(data = educacao %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
+    
+   # definir informação dos eixos
+    labs( x = "",
+          y = "%")+
+   tema+
+  geom_hline(yintercept= 100, colour = "red", linetype = "dashed") +
+  # escala de cor. Os levels são definidos na coluna cores da df.
+    # https://ggplot2.tidyverse.org/reference/geom_smooth.html
+  # inherit.aes =FALSE para evitar duas linhas de tendência.
+  # Caso contrário teríamos uma linha de tendência para a cada factor level (coluna cores).
+
+  # inherit.aes =FALSE para nao herdar aes do geoms anteriores. Caso contrário a linha teria duas cores
+    geom_line(data = educacao %>% filter (ano == max(ano) ),  inherit.aes =FALSE, aes(x=month(as.Date(date)), y=percentual), size = 0.2)+
+    scale_color_manual(breaks = levels(educacao$cores),
+                        values=levels(educacao$cores))+
+   # optei por esconder a legenda (showlegend = FALSE)
+geom_text(data = educacao %>% filter (date == max(date)), aes(x=mes, y=percentual+20, label = paste0(round(percentual,1),"%", "\n", atual$mes, "/", atual$ano)), size = 3.5, color = "black", face = "bold")+ 
+  ggtitle( paste0( "Gráfico 7: Despesa com educação: percentual executado no período de 2008 a ",   atual$ano))
+
+ggplotly(p)%>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)
+```
+
+### Criar função para gerar gráfico
+
+Uma vez estruturado o gráfico, nós podemos criar uma função para ser utilizada tanto com as despesas com educação quanto com as despesas com saúde.
+
+Aproveitamos o código desenvolvido até agora para encapsulá-lo dentro da função "plot_meta_despesa".
 
 ```{r plot_meta_despesa}
-plot_meta_despesa = function(df, meta){
+plot_meta_despesa = function(df){
 
   atual <- df %>% filter (date == max(date))
   ggplot(df, aes(y=percentual, color = cores)) +
@@ -174,7 +334,7 @@ plot_meta_despesa = function(df, meta){
     geom_point(data = df %>% filter (ano == max(ano)), aes(x=mes, y=percentual,text=paste("ANO: ", ano)))+
 
   # plotar linha vermelha tracejada dividindo resultados bons (azul), ruins (vermelho). O argumento "meta" define a altura da linha.
-    geom_hline(yintercept=meta, colour = "red", linetype = "dashed") +
+    geom_hline(yintercept=100, colour = "red", linetype = "dashed") +
   # https://ggplot2.tidyverse.org/reference/geom_smooth.html
   # inherit.aes =FALSE para evitar duas linhas de tendência.
   # Caso contrário teríamos uma linha de tendência para a cada factor level (coluna cores).
@@ -191,19 +351,62 @@ plot_meta_despesa = function(df, meta){
                         values=levels(df$cores))+
 
   # optei por esconder a legenda (showlegend = FALSE)
-geom_text(data = df %>% filter (date == max(date)), aes(x=mes, y=percentual+8, label = paste0(round(percentual,1),"%")), size = 4, color = "black", face = "bold")+
-  ggtitle ( paste0("Cumpriu ",atual$percentual, "% da meta até ", atual$mes, "/", atual$ano))}
+geom_text(data = df %>% filter (date == max(date)), aes(x=mes, y=percentual+20, label = paste0(round(percentual,1),"%", "\n", atual$mes, "/", atual$ano)), size = 3.5, color = "black", face = "bold")}
 ```
 
-```{r educacao}
+### Aplicar função à data frame da educação
+
+```{r grafico_8_funcao_educacao}
+
+t <- list(
+  family = "Times New Roman",
+  size = 18,
+  color = "black")
+
+
+p <- plot_meta_despesa(educacao)
+
+ggplotly(p )%>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)%>%
+  layout(title = list(text = paste0('Gráfico 8: Despesa com educação',
+                                    '<br>',
+                                    '<sup>',
+                                     paste0("Cumpriu ",atual$percentual, "% da meta até ", atual$mes, "/", atual$ano),'</sup>'), font= t))
+
+```
+
+### Aplicar função à data frame da saúde
+
+```{r grafico_9_funcao_saude}
+saude <- read_excel("relatorios_fiscais/rreo/dados_rreo.xlsx", 
+    sheet = "saude", col_types = c("date", 
+        "numeric", "numeric", "numeric", "numeric", 
+        "numeric"))
+
+names(saude)[1] <- "date"
+names(saude)[2] <- "executado"
+names(saude)[5] <- "minimo"
 
 
 
+saude <- saude %>% mutate (percentual = round(100*executado/minimo,0), mes = month(date, label = TRUE), ano = year(date))
 
-p <- plot_meta_despesa(educacao,100)
-
-ggplotly(p)
-
+saude <- saude %>% mutate(cores = if_else(percentual<100,"red","blue"))
 
 
+
+saude<-saude %>%
+  mutate(cores = fct_reorder(cores, desc(cores)))
+atual_saude <- saude %>% filter (date == max(date))
+
+p <- plot_meta_despesa(saude)
+
+ggplotly(p)%>%
+  config(modeBarButtons = list(list("zoomIn2d"), list("autoScale2d")))%>%
+  config(displaylogo = FALSE)%>%
+  layout(title = list(text = paste0('Gráfico 9: Despesa com saúde',
+                                    '<br>',
+                                    '<sup>',
+                                     paste0("Cumpriu ",atual_saude$percentual, "% da meta até ", atual_saude$mes, "/", atual_saude$ano),'</sup>'), font= t))
 ```

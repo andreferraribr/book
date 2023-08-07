@@ -180,7 +180,7 @@ ggplotly(p)
 ### Receita Corrente Líquida
 
 ```{r rcl_exercicio_anterior}
-rcl_anterior <- read_excel("relatorios_fiscais/rreo/auto_Anexo 03 - RCL.xlsm", 
+rcl_anterior <- read_excel("relatorios_fiscais/rreo/Anexo 03 - RCL.xlsm", 
     sheet = "Elaboracao", range = "a4:n26")
 
 datatable(rcl_anterior)%>% formatCurrency(colnames(select_if(rcl_anterior,is.numeric)),
@@ -235,60 +235,61 @@ datatable(head(rcl_anterior_longer))%>% formatCurrency("valor",
 
 ```{r dados_rcl_tesouro_gerencial}
 #| warning: false
+#| eval: false
 
-tg_rcl <- read_excel("relatorios_fiscais/rreo/RREO_R_RCL.xlsx", 
-    skip = 7)
-
-
-colnames(tg_rcl)[1] <- "item_tg"
-colnames(tg_rcl)[2] <- "mes_nome"
-colnames(tg_rcl)[3] <- "valor"
-
-
-data_rcl <- tail(tg_rcl$item_tg, 1)
-
-# retirar a linha com a data da atualização do TG
-tg_rcl <- head(tg_rcl, -1)
-
-
-nomes_itens <- read_excel("relatorios_fiscais/rreo/auto_Anexo 03 - RCL.xlsm", 
-    sheet = "anexo_tg")
-
-tg_rcl <- left_join(tg_rcl,nomes_itens)
-
-tg_rcl <- tg_rcl %>% select(item, mes_nome,valor)
-
-tg_rcl <- tg_rcl %>% 
-  mutate(mes_data =parse_date_time(tg_rcl$mes_nome,"ym"))
-
-rcl <- rbind(tg_rcl, rcl_anterior_longer )
-
-rcl <- rcl %>% mutate(mes_anexo =strftime(rcl$mes_data %m+% months(1) ,'%b-%y') )
-
-
-
-rcl <- rcl %>% filter(mes_data >  max(mes_data)%m-% months(12) )
-
-periodo <- paste(str_to_upper( strftime(min(rcl$mes_data) %m+% months(1) ,'%b-%y')),
-                 " ATÉ ", str_to_upper( strftime(max(rcl$mes_data) %m+% months(1) ,'%b-%y') ))
-
-
-rcl <-rcl%>% arrange(mes_data) %>% select(item, mes_anexo, valor)  %>% pivot_wider(names_from = mes_anexo , values_from = valor) 
-
-rcl <- rcl  %>%
-  adorn_totals( where = "col", fill = "-", na.rm = TRUE, name = "12 meses")
-
-
-datatable(rcl)%>% formatCurrency(is.numeric(rcl),
-  currency = "R$ ",
-  interval = 3,
-  mark = ".",
-  digits = 2,
-  dec.mark = ",",
-  before = TRUE,
-  zero.print = NULL,
-  rows = NULL)%>% 
-     formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
+# tg_rcl <- read_excel("relatorios_fiscais/rreo/RREO_R_RCL.xlsx", 
+#     skip = 7)
+# 
+# 
+# colnames(tg_rcl)[1] <- "item_tg"
+# colnames(tg_rcl)[2] <- "mes_nome"
+# colnames(tg_rcl)[3] <- "valor"
+# 
+# 
+# data_rcl <- tail(tg_rcl$item_tg, 1)
+# 
+# # retirar a linha com a data da atualização do TG
+# tg_rcl <- head(tg_rcl, -1)
+# 
+# 
+# nomes_itens <- read_excel("relatorios_fiscais/rreo/Anexo 03 - RCL.xlsm", 
+#     sheet = "anexo_tg")
+# 
+# tg_rcl <- left_join(tg_rcl,nomes_itens)
+# 
+# tg_rcl <- tg_rcl %>% select(item, mes_nome,valor)
+# 
+# tg_rcl <- tg_rcl %>% 
+#   mutate(mes_data =parse_date_time(tg_rcl$mes_nome,"ym"))
+# 
+# rcl <- rbind(tg_rcl, rcl_anterior_longer )
+# 
+# rcl <- rcl %>% mutate(mes_anexo =strftime(rcl$mes_data %m+% months(1) ,'%b-%y') )
+# 
+# 
+# 
+# rcl <- rcl %>% filter(mes_data >  max(mes_data)%m-% months(12) )
+# 
+# periodo <- paste(str_to_upper( strftime(min(rcl$mes_data) %m+% months(1) ,'%b-%y')),
+#                  " ATÉ ", str_to_upper( strftime(max(rcl$mes_data) %m+% months(1) ,'%b-%y') ))
+# 
+# 
+# rcl <-rcl%>% arrange(mes_data) %>% select(item, mes_anexo, valor)  %>% pivot_wider(names_from = mes_anexo , values_from = valor) 
+# 
+# rcl <- rcl  %>%
+#   adorn_totals( where = "col", fill = "-", na.rm = TRUE, name = "12 meses")
+# 
+# 
+# datatable(rcl)%>% formatCurrency(is.numeric(rcl),
+#   currency = "R$ ",
+#   interval = 3,
+#   mark = ".",
+#   digits = 2,
+#   dec.mark = ",",
+#   before = TRUE,
+#   zero.print = NULL,
+#   rows = NULL)%>% 
+#      formatStyle(columns = colnames(.$x$data), fontSize = "8pt")
 ```
 
 #### Gráfico RCL

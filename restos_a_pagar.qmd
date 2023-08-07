@@ -8,7 +8,7 @@ format:
     code-overflow: wrap
 ---
 
-## Apresentação
+## Introdução
 
 O meu objetivo foi o de criar gráficos amigáveis sobre Restos a Pagar a Pagar (RP a Pagar):
 
@@ -30,7 +30,7 @@ Optei por utilzar o RP a Pagar, pois esta métrica engloba tanto o saldo final d
 
 A importância do RP a Pagar pode ser atestada pelo Manual de Demonstrativos Fiscais(MDF). De acordo com o MDF, a coluna L do Anexo 7 apresenta o RP a Pagar sob o título de "Saldo Total".
 
-![Figura 1. Manual de Demonstrativos Fiscais: Anexo 7 (Restos a Pagar)](relatorios_fiscais/rreo/formula_rp.png){alt="Figura 1. Manual de Demonstrativos Fiscais: Anexo 7 (Restos a Pagar)" fig-alt="Fórmula do RP a Pagar"}
+![Figura 1. Manual de Demonstrativos Fiscais: Anexo 7 (Restos a Pagar)](relatorios_fiscais/rreo/formula_rp.png){fig-alt="Fórmula do RP a Pagar"}
 
 ## Defasagem Temporal
 
@@ -120,7 +120,7 @@ A partir da Tabela 1 observamos a reinscrição de Restos a Pagar empenhados no 
 
 A Figura 2 ilustra a reinscrição e posterior baixa dos empenhos emitidos em 2000.
 
-![Figura 2: Reinscrição de Restos a Pagar](relatorios_fiscais/rreo/ano_empenho.png){alt="Figura 2: Reinscrição de Restos a Pagar"}
+![Figura 2: Reinscrição de Restos a Pagar](relatorios_fiscais/rreo/ano_empenho.png)
 
 O Gráfico 1 apresenta o saldo de RP a Pagar por ano de emissão da nota de empenho. A cor azul clara sinaliza empenhos mais recentes e o azul escuro os empenhos mais antigos.
 
@@ -376,7 +376,7 @@ A partir do décimo segundo mês da série histórica, o pacote [dygraphs](https
 
 [^restos_a_pagar-1]: O Gráfico 7, com a média móvel, pode assumir os mesmos valores do Gráfico 6. Para tanto, basta mudar de 12 para 1 o valor no canto inferior esquerdo do gráfico (o número circulado em vermelho na Figura 2).
 
-![Figura 3. Saldo em Dezembro/2008 (média móvel de 12 meses)](relatorios_fiscais/rreo/12_meses.png){alt="Figura 3. Saldo em Dezembro/2008 (média móvel de 12 meses)"}
+![Figura 3. Saldo em Dezembro/2008 (média móvel de 12 meses)](relatorios_fiscais/rreo/12_meses.png)
 
 ### Série histórica suavizada: média móvel de 12 meses deflacionada pelo IPCA
 

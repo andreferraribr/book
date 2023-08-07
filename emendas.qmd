@@ -1,0 +1,212 @@
+---
+title: "Emendas Parlamentares"
+editor: visual
+format:
+  html:
+    code-overflow: wrap
+---
+
+```{r}
+# definir opções para o código
+# https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
+knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE,tidy = "styler")
+options(encoding = "latin1")
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(DT)
+library(plotly)
+library(lubridate)
+library(forcats)
+library(janitor)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+
+
+# https://www.r-bloggers.com/the-notin-operator/
+'%!in%' <- Negate('%in%')
+
+
+indicador_eof <- read_excel("indicador_eof/indicador_eof.xlsx") %>% clean_names() %>% head(-1) %>%
+mutate(tipo = case_when
+(codigo == 0 ~  paste0(codigo, "-Financeiro"),
+ codigo == 1 ~  paste0(codigo, "-Primário Obrigatório"),
+ codigo == 2 ~  paste0(codigo, "-Primário Discricionário"),
+ codigo == 3 ~  paste0(codigo, "-Primário Sem Impacto Fiscal"),
+ codigo == 6  ~  paste0(codigo, "-Emenda Individual" ),
+ codigo == 7  ~  paste0(codigo, "-Emenda de Bancada"),
+ codigo == 8  ~  paste0(codigo, "-Emenda de Comissão"),
+ codigo == 9  ~  paste0(codigo, "-Emenda de Relator"),))
+
+
+indicador_eof[is.na(indicador_eof)] <- 0
+
+eof_elemento <- read_excel("indicador_eof/indicador_eof_elemento_tipo.xlsx", skip = 5) %>% clean_names() %>% head(-1)
+
+# converte NA em zero.
+eof_elemento[is.na(eof_elemento)] <- 0
+
+eof_elemento<- eof_elemento%>% rename( "ano_empenho" = "ne_c_cor_ano_emissao" )
+
+eof_elemento <- eof_elemento %>% mutate(tempo = as.integer(ano_lancamento)-as.integer(ano_empenho))
+
+eof_elemento <- eof_elemento %>% mutate (defasagem = case_when(
+  tempo == 0 ~ "sem defasagem",
+  tempo == 1 ~ "1 ano",
+  tempo == 2 ~ "2 anos",
+  TRUE ~ "maior que 2 anos"))
+
+eof_elemento <- eof_elemento %>%  mutate (defasagem = fct_reorder(defasagem, tempo))
+
+
+```
+
+```{r}
+datatable(indicador_eof %>% filter(ano_lancamento != 2014) %>% 
+  group_by( tipo, ano_lancamento) %>% 
+  summarise(despesas_empenhadas = sum(despesas_empenhadas)/1000000000) %>% pivot_wider(names_from = ano_lancamento, values_from = despesas_empenhadas), options = list(
+  language =
+  list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),  
+  pageLength = 10),
+  caption = 'Tabela 1. Despesa por Indicador de Resultado Primário (R$ BI)')%>%
+  formatCurrency(c(2:9), '', mark = ".",digits = 1,  dec.mark = ",") 
+```
+
+```{r}
+
+p <- indicador_eof %>% filter(codigo >5) %>% 
+  group_by(ano_lancamento, tipo) %>%
+  summarise(despesas_empenhadas = sum(despesas_empenhadas/1000000000 )) %>%
+  arrange(despesas_empenhadas) %>% 
+  ggplot()+ 
+    geom_col(aes(x=ano_lancamento, y=despesas_empenhadas, fill = tipo)) +
+    ggtitle("Gráfico 1. Emendas Parlamentares: Despesa Empenhada")+
+    labs(y = "R$ BI", x = "ano lançamento")
+
+
+ggplotly(p)
+
+```
+
+```{r}
+datatable(eof_elemento %>%
+ group_by(elemento_despesa_nome) %>%
+ summarise(pago = sum(pagamentos_totais_exercicio_e_rap,na.rm = TRUE)/1000000000) %>% arrange(-pago),
+ options = list(language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),pageLength = 10),
+  caption = 'Tabela 2. Emendas Parlamentares: valores pagos por elemento da despesa de 2014 a 2022 (R$ BI)')%>%
+  formatCurrency(2, '', mark = ".",
+  digits = 1,  dec.mark = ",")
+
+
+
+
+```
+
+```{r}
+
+datatable(eof_elemento %>%
+ group_by(funcao_governo_nome) %>%
+ summarise(pago =sum(pagamentos_totais_exercicio_e_rap,na.rm = TRUE)/1000000000) %>% arrange(-pago),
+ options = list(language =list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'), pageLength = 10),
+  caption = 'Tabela 3. Emendas Parlamentares: valores pagos por função de 2014 a 2022 (R$ BI)')%>%
+  formatCurrency(2, 'R$ ', mark = ".",
+  digits = 1,  dec.mark = ",")
+
+```
+
+https://www.cnnbrasil.com.br/nacional/saiba-o-que-e-e-como-funciona-o-orcamento-secreto/
+
+https://g1.globo.com/politica/noticia/2022/10/12/o-que-e-o-orcamento-secreto.ghtml
+
+```{r}
+
+```
+
+```{r}
+
+todos <- eof_elemento  %>%
+  group_by(ano_lancamento,defasagem) %>%
+  summarise(pagamentos = sum(pagamentos_totais_exercicio_e_rap)/1000000000 )
+
+sem_def_todos <- sum(todos %>% filter(defasagem == "sem defasagem") %>% select(pagamentos))
+
+soma_todos<- sum(todos  %>% select(pagamentos))
+
+per_def_todos <- sem_def_todos/soma_todos*100
+
+p <- todos  %>%  
+  ggplot()+ 
+  geom_col(aes(x= as_date( paste0( ano_lancamento,"01-01" )), y=pagamentos, fill = (defasagem)))+
+    scale_fill_manual(values = c("lightgray","lightblue",  "darkblue",  "red"))+
+  labs(y = "saldo em R$ BI", x = "ano lançamento")
+
+ggplotly(p)%>%
+  layout(title = list(text = paste0('Gráfico 2. Emendas Parlamentares',
+                                    '<br>',
+                                    '<sup>',
+                                     'Pagamentos Totais de 2014 a 2022','</sup>')))
+
+
+
+```
+
+
+
+```{r}
+
+datatable( cbind(aggregate(pagamentos ~ defasagem, todos, sum),aggregate(pagamentos ~ defasagem, todos, sum) %>% summarise(percentual = pagamentos/sum(pagamentos)))  ,
+ options = list(language =list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'), pageLength = 10),
+  caption = 'Tabela 4. Emendas Parlamentares: Pagamentos Totais de 2014 a 2022 (R$ BI)')%>%
+  formatCurrency(2, 'R$ ', mark = ".",
+  digits = 1,  dec.mark = ",")%>%
+  formatPercentage(3,digits = 1,
+  interval = 3,
+  mark = ",",
+  dec.mark = getOption("OutDec"),
+  zero.print = NULL,
+  rows = NULL)
+
+```
+
+
+
+```{r}
+
+invest <- eof_elemento %>% filter(elemento_despesa_codigo %in% c(51,52))  %>%  group_by(ano_lancamento,defasagem) %>% summarise(pagamentos = sum(pagamentos_totais_exercicio_e_rap)/1000000000)
+p <- invest %>%  
+  ggplot()+ 
+  geom_col(aes(x= as_date( paste0( ano_lancamento,"01-01" )), y=pagamentos, fill =( defasagem)))+
+    scale_fill_manual(values = c("lightgray","lightblue",  "darkblue",  "red"))+
+  labs(y = "saldo em R$ BI", x = "ano lançamento")
+
+ggplotly(p)%>%
+  layout(title = list(text = paste0('Gráfico 4. Emendas Parlamentares para despesas com obras ou equipamentos',
+                                    '<br>',
+                                    '<sup>',
+                                     'Pagamentos Totais de 2014 a 2022','</sup>')))
+```
+
+
+```{r}
+
+
+
+datatable( cbind(aggregate(pagamentos ~ defasagem, invest, sum),aggregate(pagamentos ~ defasagem, invest, sum) %>% summarise(percentual = pagamentos/sum(pagamentos)))  ,
+ options = list(language =list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'), pageLength = 10),
+  caption = 'Tabela 5. Emendas Parlamentares para despesas com obras ou equipamentos: Pagamentos Totais de 2014 a 2022 (R$ BI)')%>%
+  formatCurrency(2, 'R$ ', mark = ".",
+  digits = 1,  dec.mark = ",")%>%
+  formatPercentage(3,digits = 1,
+  interval = 3,
+  mark = ",",
+  dec.mark = getOption("OutDec"),
+  zero.print = NULL,
+  rows = NULL) 
+```
+
