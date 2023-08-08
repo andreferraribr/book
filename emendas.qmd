@@ -74,7 +74,7 @@ datatable(indicador_eof %>% filter(ano_lancamento > 2019) %>%
   language =
   list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),  
   pageLength = 10),
-  caption = 'Tabela 1. Despesa Empenhada por Indicador de Resultado Primário (2020 a 2022 em R$ BI)')%>%
+  caption = 'Tabela 1. Despesa Empenhada por Indicador de Resultado Primário (2020 a 2022 em R$ Bi)')%>%
   formatCurrency(c(2:4), '', mark = ".",digits = 1,  dec.mark = ",") 
 ```
 
@@ -87,7 +87,7 @@ p <- indicador_eof %>% filter(codigo >5) %>%
   ggplot()+ 
     geom_col(aes(x=ano_lancamento, y=despesas_empenhadas, fill = tipo)) +
     ggtitle("Gráfico 1. Emendas Parlamentares: Despesa Empenhada (2014 a 2022)")+
-    labs(y = "R$ BI", x = "ano lançamento")
+    labs(y = "R$ Bi", x = "ano lançamento")
   
 
 
@@ -101,9 +101,9 @@ ggplotly(p+ theme(legend.title = element_text(colour="white", size=10,
 ```{r}
 datatable(eof_elemento %>%
  group_by(elemento_despesa_nome) %>%
- summarise(pago = sum(pagamentos_totais_exercicio_e_rap,na.rm = TRUE)/1000000000) %>% arrange(-pago),
+ summarise(pago = sum(pagamentos_totais_exercicio_e_rap,na.rm = TRUE)/1000000000) %>% arrange(-pago), colnames=c("Elemento da Despesa", "Valor Pago em R$ Bi"),
  options = list(language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'),pageLength = 10),
-  caption = 'Tabela 2. Emendas Parlamentares: valores pagos por elemento da despesa de 2014 a 2022 (R$ BI)')%>%
+  caption = 'Tabela 2. Emendas Parlamentares: valores pagos por elemento da despesa de 2014 a 2022')%>%
   formatCurrency(2, '', mark = ".",
   digits = 1,  dec.mark = ",")
 
@@ -116,10 +116,10 @@ datatable(eof_elemento %>%
 
 datatable(eof_elemento %>%
  group_by(funcao_governo_nome) %>%
- summarise(pago =sum(pagamentos_totais_exercicio_e_rap,na.rm = TRUE)/1000000000) %>% arrange(-pago),
+ summarise(pago =sum(pagamentos_totais_exercicio_e_rap,na.rm = TRUE)/1000000000) %>% arrange(-pago), colnames=c("Função", "Valor Pago em R$ Bi"),
  options = list(language =list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'), pageLength = 10),
-  caption = 'Tabela 3. Emendas Parlamentares: valores pagos por função de 2014 a 2022 (R$ BI)')%>%
-  formatCurrency(2, 'R$ ', mark = ".",
+  caption = 'Tabela 3. Emendas Parlamentares: valores pagos por função de 2014 a 2022')%>%
+  formatCurrency(2, '', mark = ".",
   digits = 1,  dec.mark = ",")
 
 ```
@@ -148,7 +148,7 @@ p <- todos  %>%
   ggplot()+ 
   geom_col(aes(x= as_date( paste0( ano_lancamento,"01-01" )), y=pagamentos, fill = (defasagem)))+
     scale_fill_manual(values = c("lightgray","lightblue",  "darkblue",  "red"))+
-  labs(y = "saldo em R$ BI", x = "ano lançamento")+
+  labs(y = "saldo em R$ Bi", x = "ano lançamento")+
   theme_classic()
 
 ggplotly(p+ theme(legend.title = element_text(colour="white", size=10, 
@@ -167,10 +167,10 @@ ggplotly(p+ theme(legend.title = element_text(colour="white", size=10,
 
 ```{r}
 
-datatable( cbind(aggregate(pagamentos ~ defasagem, todos, sum),aggregate(pagamentos ~ defasagem, todos, sum) %>% summarise(percentual = pagamentos/sum(pagamentos)))  ,
+datatable( cbind(aggregate(pagamentos ~ defasagem, todos, sum),aggregate(pagamentos ~ defasagem, todos, sum) %>% summarise(percentual = pagamentos/sum(pagamentos))), colnames=c("Defasagem", "Valor Pago em R$ Bi", "Percentual")  ,
  options = list(language =list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'), pageLength = 10),
-  caption = 'Tabela 4. Emendas Parlamentares: Pagamentos Totais de 2014 a 2022 (R$ BI)')%>%
-  formatCurrency(2, 'R$ ', mark = ".",
+  caption = 'Tabela 4. Emendas Parlamentares: Pagamentos Totais de 2014 a 2022')%>%
+  formatCurrency(2, '', mark = ".",
   digits = 1,  dec.mark = ",")%>%
   formatPercentage(3,digits = 1,
   interval = 3,
@@ -190,7 +190,7 @@ p <- invest %>%
   ggplot()+ 
   geom_col(aes(x= as_date( paste0( ano_lancamento,"01-01" )), y=pagamentos, fill =( defasagem)))+
     scale_fill_manual(values = c("lightgray","lightblue",  "darkblue",  "red"))+
-  labs(y = "saldo em R$ BI", x = "ano lançamento")+
+  labs(y = "saldo em R$ Bi", x = "ano lançamento")+
   theme_classic()
 
 ggplotly(p+ theme(legend.title = element_text(colour="white", size=10, 
@@ -207,10 +207,10 @@ ggplotly(p+ theme(legend.title = element_text(colour="white", size=10,
 
 
 
-datatable( cbind(aggregate(pagamentos ~ defasagem, invest, sum),aggregate(pagamentos ~ defasagem, invest, sum) %>% summarise(percentual = pagamentos/sum(pagamentos)))  ,
+datatable( cbind(aggregate(pagamentos ~ defasagem, invest, sum),aggregate(pagamentos ~ defasagem, invest, sum) %>% summarise(percentual = pagamentos/sum(pagamentos))), colnames=c("Defasagem", "Valor Pago em R$ Bi", "Percentual")   ,
  options = list(language =list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese.json'), pageLength = 10),
-  caption = 'Tabela 5. Emendas Parlamentares (obras ou equipamentos): Pagamentos Totais de 2014 a 2022 (R$ BI)')%>%
-  formatCurrency(2, 'R$ ', mark = ".",
+  caption = 'Tabela 5. Emendas Parlamentares (obras ou equipamentos): Pagamentos Totais de 2014 a 2022')%>%
+  formatCurrency(2, '', mark = ".",
   digits = 1,  dec.mark = ",")%>%
   formatPercentage(3,digits = 1,
   interval = 3,
