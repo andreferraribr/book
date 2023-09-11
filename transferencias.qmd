@@ -1,0 +1,271 @@
+---
+title: "O FPM e o equilíbrio fiscal dos municípios"
+editor: visual
+lang: pt
+format:
+  html:
+    code-fold: true
+    code-summary: "mostrar o código"
+    code-overflow: wrap
+---
+
+```{r}
+# https://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
+knitr::opts_chunk$set( echo=TRUE, warning=FALSE, message=FALSE,tidy = "styler")
+options(encoding = "latin1")
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(readxl)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(data.table)
+library(DT)
+library(tidyverse)
+library("xts")
+library("dygraphs")
+library(purrr)
+library(plotly)
+library(gapminder)
+library(knitr)
+library(kableExtra)
+
+```
+
+A Confederação Nacional dos Municípios (CNM) publicou em agosto/23 um [manifesto](https://www.cnm.org.br/comunicacao/noticias/manifesto-pela-aprovacao-de-pautas-para-enfrentamento-da-crise) alertando sobre a crise fiscal dos municípios brasileiros. Segundo a entidade, 51% dos municípios estão no vermelho e uma das maneiras para reverter o quadro é adicionar 1,5% ao percentual da aliquota do FPM.
+
+Neste artigo nos vamos abordar as principais transferências constitucionais, a evolução recente da distribuição do FPM e o risco fiscal decorrente da frustração da receita.
+
+## Mobilização dos municípios
+
+A CNM convocou os municípios para a moblizição municipalista de outubro/2023. Um dos itens da pauta é o aumento do FPM.
+
+[![mobilização dos municípios.](cnm.jpg){#fig-cnn}](https://www.cnm.org.br/comunicacao/noticias/cnm-promove-nova-mobilizacao-pelo-avanco-das-pautas-municipalistas-nos-dias-3-e-4-de-outubro-participe)
+
+## O FPM no contexto das Transferências Consitucionais
+
+Acessamos o [Tesouro Transparente](https://www.tesourotransparente.gov.br/temas/estados-e-municipios/transferencias-a-estados-e-municipios) para obter os dados das trânsferencias constitucionais destinadas aos municípico. Coletamos os valores para o período de 2016 a 2023.
+
+```{r importar_dados_tt}
+transf_tesouro_transparente <- read_excel("transf_tesouro_transparente.xlsx") %>% clean_names()
+```
+
+### As princípais transferências constitucionais
+
+A @tbl-transferencias traz o valor total das transferências constitucionais de 2016 a 2022. Optamos por excluir 2023, pois o exercício ainda está aberto. Podemos observar que o Fundeb, o FPM e os Royalties representam quase a totalidade das transferências recebidas pelos municípios.
+
+```{r tabela_transferencias}
+#| label: tbl-transferencias
+#| tbl-cap: "transferências constitucionais de 2016 a 2022 (R$ bi)"
+
+
+
+transf_tesouro_transparente %>%filter(ano != 2023) %>% group_by(transferencia) %>% summarise(valor =round( sum(valor_consolidado)/1000000000,1))%>% arrange(desc(valor)) %>%  kable(booktabs = TRUE, col.names = c("Transferências", "Valor")) 
+```
+
+#### Fundeb
+
+O Fundeb, apesar de ser a principal transferência recebida pelos municípios, não faz parte das demandas da CNM. Talvez o Fundeb esteja fora da pauta por ser um recurso vinculado que deve ser aplicado exclusivamente nas ações de educação.
+
+#### Royalties
+
+A @tbl-royalties traz os municípios que mais receberam royalties de 2016 a 2022. Constata-se que somente 10 municípios receberam 44,7% de todas as transferência de roylaties. Talvez, devido a grande concentração de royalties em poucos municípios, a demanda da CMN não aborde esse fonte de receita.
+
+```{r}
+#| label: tbl-royalties
+#| tbl-cap: "Os 10 Municípios que mais receberam royalties (2016 a 2022)"
+
+
+
+
+
+top_royalties <- transf_tesouro_transparente %>% filter(transferencia == "Royalties", ano != 2023)%>% group_by(municipio) %>% summarise(valor =round( sum(valor_consolidado)/1000000000,1)) %>% arrange(desc(valor)) %>% mutate(valor_acumulado = cumsum(valor)) %>% mutate(percentual = round(valor_acumulado/sum(valor)*100,1)) 
+
+head( top_royalties, 10) %>%  kable(booktabs = TRUE, col.names = c("Município", "R$ bi", "R$ bi acumulado", "Percentual Acumulado")) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T, position = "left")
+
+
+
+
+
+```
+
+### FPM: base de cáculo, série histórica e riscos fiscais
+
+#### Base de Cálculo
+
+O repasse do FPM é uma alíquota da arrecadação líquida do Imposto de Renda (IR) e do Imposto sobre Produtos Industrializados (IPI), o montante transferido a cada decêndio é diretamente proporcional ao desempenho da arrecadação líquida desses impostos no decêndio anterior. @CartilhaFPM
+
+#### Acréscimo no percentual do FPM
+
+Em [três ocasiões](https://cdn.tesouro.gov.br/sistemas-internos/apex/producao/sistemas/thot/arquivos/publicacoes/28549_909191/anexos/6370_978491/Cartilha%20FPM.pdf?v=484) recentes foram aprovadas emendas constitucionais (EC) aumentando o FPM. Em 2007, a EC 55 acrescentou 1% ao percentual do FPM. Já em 2014 a EC 84 aumentou mais 1% ao percentual do FPM. Finalmente, em 2021, a EC 112 aumenta o percentual do FPM, de forma escalonada, em 1%. Ou seja, em um período de 14 ano valor percentual do FPM foi aumentado em 3 pontos percentuais. Após todos os aumentos o FPM será composto por 25,5% da arrecadação líquida do IR e do IPI. @CartilhaFPM
+
+#### Evolução da arrecadação do IPI e IR
+
+A arrecadação do IPI e IR, base de cálculo para o FPM, manteve-se estável em termos reais entre 2016 e 2020. Ao corrigirmos os valores pelo IPCA podemos observar na @tbl-arrecadacao que a arrecadação permanceu no patamar de R\$ 550 bilhões entre 2016 a 2020 e depois cresceu de forma acelerada de 2021 a 2022 até chegar ao montante de R\$ 766 bilhões.
+
+```{r}
+
+#| label: tbl-arrecadacao
+#| tbl-cap: "Arrecadação de IR e IPI (2016 a 2022)"
+
+# utilizamos a base de dados do Siga Brasil
+siga_receitas <- read_excel("siga_receitas.xlsx") %>% clean_names() %>% filter(arrecadacao != 0)
+
+siga_receitas <- siga_receitas %>% mutate(mes_ano = parse_date_time(paste0(ano_receita, "/", mes_numero_rec, "/01"),"ymd"))
+
+# filtramos os desdobramentos referentes ao IR e ao IPI
+siga_receitas %>% filter(desdobramento_2_cod_rec %in% c(111301, 111302, 111303,111401),  ano_receita != 2023) %>% group_by( ano_receita) %>% summarise(arrecadacao= round(sum(arrecadacao)/1000000000,1), arrecadacao_ipca = round(sum(arrecadacao_ipca)/1000000000,1)) %>%  kable(booktabs = TRUE, col.names = c("Ano", "R$ Bi valor nominal", "R$ Bi corrigidos pelo IPCA")) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T, position = "left")
+
+
+
+
+
+
+```
+
+#### Evolução do FPM
+
+Entre 2016 e 2022 os repasses do FPM foram impulsionados tanto pelas emendas constitucionais que elevaram valor percentual do FPM quanto pelo aumento recente na arrecadação de IPI e IR.
+
+Utilizamos os dados disponíveis no site do [Tesouro Transparente](http://www.tesourotransparente.gov.br/ckan/dataset/transferencias-obrigatorias-da-uniao-por-municipio) para obter os valores mensais das transferências do FPM.
+
+```{r}
+#| warning: false
+#| message: false
+fpm <- read_excel("FPM-por-Municipio.xlsx", 
+    col_types = c("numeric", "text", "text", 
+        "text", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric")) %>% clean_names()
+
+```
+
+```{r}
+transf_fpm <- fpm  %>% pivot_longer( cols = (6:33), names_to = "ano", values_to = "valor") 
+
+transf_fpm <- transf_fpm %>% mutate( ano = str_remove (ano,"x"),
+                             mes_ano = parse_date_time(paste0(ano, "/", mes, "/01"),"ymd"))  %>% select(-mes) %>% filter(valor>0)
+
+
+```
+
+Para facilitar a compreensão, vamos utilizar o saldo acumulado dos últimos 12 meses. Por exemplo, o saldo acumulado em abril/2023 e a soma dos saldos mensais de maio/2022 até abril/2023 (inclusive). Dessa forma, seguiremos a mesma lógica para se calcular a Receita Corrente Líquida. Optamos pelo saldo acumulado para suavizar as oscilações dos saldos.
+
+O @fig-fpm_12_meses aponta para uma estabilidade do FPM até o início de 2021 e depois uma elevação acentuada até o início de 2023 para então estabilizar novamente. Os dados do FPM vão até julho/2023.
+
+```{r}
+#| label: fig-fpm_12_meses
+#| fig-cap: "FPM acumulado últimos 12 meses (R$ bi)"
+#| warning: false
+#| message: false
+
+transf_fpm_plot <- transf_fpm %>% filter(mes_ano>"2015-12-01")%>% group_by(mes_ano) %>% summarise(fpm = round(sum(valor)/1000000000,1)) %>% mutate(fpm_12_meses = rollsum(round(fpm,1),12, align = "right", fill = NA))
+
+ggplotly(transf_fpm_plot%>% ggplot() + geom_line(aes(x=  as.Date(mes_ano), y =fpm_12_meses), color = "red")+
+  scale_y_continuous(limits = c(0, 200))+
+   scale_x_date(limits = as.Date(c("2017-01-01","2023-09-01")))+
+    labs(y = "R$", x = "data"))
+
+
+
+
+```
+
+Os dados de arrecadação vão até agosto/2023, logo há uma defasagem entre os dados da arrecadação e os dados do FPM. A regra de repasse do FPM já preve uma defasagem, pois a Lei Complementar 62/89 determina que os recursos do FPM serão transferidos nos dia 10, 20 e 30 de cada mês sempre sobre a arrecadação do IR e IPI do decêndio anterior ao repasse.
+
+Se a @fig-fpm_12_meses aponta para uma estabilização nos repasses a partir do início do ano de 2023, a @fig-ipi_ir_12_meses indica uma leve inflexão na arrecadação do IPI e IR a partir de maio/2023 no sentido de uma queda.
+
+```{r}
+#| label: fig-ipi_ir_12_meses
+#| fig-cap: "Arrecadação de IR e IPI acumulado últimos 12 meses (R$ bi)"
+#| warning: false
+#| message: false
+arrecadacao_mensal_plot <- siga_receitas  %>% filter(mes_ano != max(mes_ano), desdobramento_2_cod_rec %in% c(111301, 111302, 111303,111401))%>%  group_by(mes_ano) %>% summarise(arrecadado = round(sum(arrecadacao)/1000000000,1)) %>% mutate(arrecadado_12_meses = rollsum(round(arrecadado,1),12, align = "right", fill = NA))
+
+
+ggplotly(arrecadacao_mensal_plot %>% ggplot() + geom_col(aes(x= as.Date(mes_ano), y =arrecadado_12_meses), size = 0.1, color = "darkblue", fill = "white")+
+   scale_x_date(limits = as.Date(c("2017-01-01","2023-09-01")))+
+    labs(y = "R$", x = "data"))
+
+
+```
+
+Na @fig-comparativo mesclamos o gráfico do FPM e da arrecadação para facilitar a visualização.
+
+```{r}
+#| label: fig-comparativo
+#| fig-cap: "Comparação entreo o FPM e a arrecadação acumulado últimos 12 meses (R$ bi)"
+#| warning: false
+#| message: false
+
+fluxo <- left_join(transf_fpm_plot,arrecadacao_mensal_plot)
+
+
+
+ggplotly( fluxo %>% filter(mes_ano>"2016-12-01") %>% ggplot() + geom_line(aes(x= as.Date(mes_ano, format = "%m/%Y"), y =fpm_12_meses), color = "red")+ geom_col(aes(x=  as.Date(mes_ano), y =arrecadado_12_meses), size = 0.1, color = "darkblue", fill = "white")+
+   scale_x_date(limits = as.Date(c("2017-01-01","2023-09-01")))+
+    labs(y = "R$", x = "data"))
+```
+
+A @tbl-fpm_maiores traz os 10 munícipios que tiveram as maiores evoluções do FPM em relação aos 12 meses anteriores.
+
+```{r}
+#| label: tbl-fpm_maiores
+#| tbl-cap: "FPM: maiores evoluções em relação aos 12 meses anteriores"
+
+# anterior <- (transf_fpm %>% filter(mes_ano < max(mes_ano) %m-% months(11),mes_ano > max(mes_ano) %m-% months(24)))
+# 
+# atual <- (transf_fpm %>% filter(mes_ano > max(mes_ano) %m-% months(12)))
+
+municipios_atual <- transf_fpm %>% filter(mes_ano > max(mes_ano) %m-% months(12)) %>% group_by(municipio_uf) %>% summarise(valor_atual = round(sum(valor)/1000000,1))
+
+municipios_anterior <- transf_fpm %>% filter(mes_ano < max(mes_ano) %m-% months(11),mes_ano > max(mes_ano) %m-% months(24)) %>% group_by(municipio_uf) %>% summarise(valor_anterior = round(sum(valor)/1000000,1))
+
+variacao_muni <- left_join(municipios_atual, municipios_anterior) %>% mutate(variacao = round((valor_atual-valor_anterior)/valor_anterior*100,1))
+
+
+variacao_muni  %>% arrange(desc(variacao))%>% head(10)%>% arrange(desc(variacao)) %>% kable()
+```
+
+Já a @tbl-fpm_menores traz os 10 munícipios que tiveram as menores evoluções do FPM em relação aos 12 meses anteriores. Mesmos as cidades com as menores evoluções apresetaram um crescimento no recebimento de FPM.
+
+```{r}
+#| label: tbl-fpm_menores
+#| tbl-cap: "FPM: menores evoluções em relação aos 12 meses anteriores"
+
+
+
+variacao_muni  %>% arrange(variacao)%>% head(10) %>% kable()
+```
+
+#### Riscos fiscais
+
+Segundo [levantamento do Poder 360](https://www.poder360.com.br/economia/quase-metade-das-cidades-brasileiras-dependem-90-ou-mais-de-repasses/), quase metade dos municípios brasileiros são extremamente dependentes de transferências de recursos. Os dados do levantamento apontam que as transferências representam mais de 90% da arrecadação de boa parte dos municípios.
+
+![](dependencia-cidades-transferencias-drive-18-out-2021-nacional.png){#poder width="867"}
+
+Diante da dependência das tranferências, e levando em consideração a relevância do FPM, uma queda na arrecadação do IPI e do IR pode afetar negativamente as finanças municipais.
+
+##### LDO União
+
+![](parametros_ldo.png)
+
+![](impacto_fator_receita.png){width="915"}
+
+##### Relatório Focus
+
+![](focus_pib.png)
+
+## Considerações Finais

@@ -301,4 +301,4 @@ datatable( cbind(aggregate(pagamentos ~ defasagem, invest, sum),aggregate(pagame
 
 ## Conclusão
 
-O debate sobre emendas parlamentares e orçamento secreto deve se tornar mais acirrado a medida que aumentar a rigidez orçamentária. Para saber como estão sendo aplicadas as emendas parlamentares de 2023, acesso o app: <https://andreferrari.shinyapps.io/emendas_2023/>
+O debate sobre emendas parlamentares e orçamento secreto deve se tornar mais acirrado à medida que aumentar a rigidez orçamentária. Para saber como estão sendo aplicadas as emendas parlamentares de 2023, acesso o app: <https://andreferrari.shinyapps.io/emendas_2023/>
